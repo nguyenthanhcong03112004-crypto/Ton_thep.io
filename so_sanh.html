@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập Câu So Sánh - Cơ Bản</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Quiz Styles --- */
+        .quiz-option {
+            background-color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .quiz-option:hover:not(.disabled-option) {
+            background-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        .quiz-option.selected {
+            background-color: #93c5fd;
+            border: 2px solid #3b82f6;
+        }
+        .quiz-option.correct {
+            background-color: #a7f3d0;
+            border: 2px solid #10b981;
+        }
+        .quiz-option.incorrect {
+            background-color: #fecaca;
+            border: 2px solid #ef4444;
+        }
+        .quiz-option button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+            cursor: pointer;
+        }
+        .disabled-option {
+            cursor: default;
+        }
+        .score-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .result-message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .result-message.correct {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .result-message.incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* --- Notes Section Styles --- */
+        #noteList li { list-style: none; }
+        .note-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .note-item:last-child { border-bottom: none; }
+        .note-text-display { flex-grow: 1; padding-right: 1rem; white-space: pre-wrap; word-break: break-word; }
+        .delete-note-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; transition: color 0.2s; padding: 0.25rem; }
+        .delete-note-btn:hover { color: #b91c1c; }
+        .message-box { background-color: #fff3cd; color: #664d03; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid #ffecb5; transition: opacity 0.5s ease; }
+
+        /* --- Navigator Styles --- */
+        #question-navigator {
+            max-height: 65vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        #question-navigator::-webkit-scrollbar { width: 8px; }
+        #question-navigator::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        #question-navigator::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        #question-navigator::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .navigator-button { background-color: #cbd5e1; padding: 0.5rem; border-radius: 8px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; text-align: center; font-weight: 600; color: #475569; }
+        .navigator-button:hover { background-color: #94a3b8; transform: translateY(-1px); }
+        .navigator-button.active-question { background-color: #3b82f6; color: #ffffff; border: 2px solid #1d4ed8; transform: scale(1.05); }
+        .navigator-button.answered-correctly { background-color: #a7f3d0; border: 2px solid #10b981; }
+        .navigator-button.answered-incorrectly { background-color: #fecaca; border: 2px solid #ef4444; }
+        .highlight-keyword { color: red; font-weight: bold; }
+        .hint-text { margin-top: 1rem; padding: 0.75rem; border-radius: 8px; background-color: #e0f2fe; color: #0c4a6e; border: 1px solid #93c5fd; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-5xl font-extrabold text-blue-700 mb-2">Bài Tập Câu So Sánh - Cơ Bản</h1>
+            <p class="text-xl text-gray-600">Luyện tập dễ dàng, điều hướng linh hoạt với 100 câu hỏi</p>
+        </header>
+
+        <main class="mt-8">
+            <section id="quizAndNotesCombined" class="tab-content active flex flex-col md:flex-row gap-6">
+                <!-- Navigator Column -->
+                <div class="w-full md:w-1/4">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Điều Hướng</h2>
+                    <div class="card p-6">
+                        <div id="question-navigator" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Quiz Column -->
+                <div class="w-full md:w-1/2">
+                    <h2 id="quiz-title" class="text-3xl font-bold text-gray-800 mb-6 text-center">Bài Tập Thực Hành</h2>
+                    <div class="card p-6">
+                        <div id="general-message-box" class="message-box hidden text-sm font-semibold mb-4 mx-auto w-3/4"></div>
+                        <p class="text-lg mb-4 text-center">Câu hỏi <span id="current-question">1</span> / <span id="total-questions-quiz">100</span></p>
+                        <p class="text-xl font-semibold mb-6 text-center" id="quiz-question"></p>
+                        <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                        <div id="quiz-feedback" class="mt-4 text-center">
+                            <div id="result-message" class="result-message hidden"></div>
+                            <p id="explanation-text" class="text-gray-700 mt-2 hidden"></p>
+                            <p id="hint-text" class="hint-text hidden"></p>
+                        </div>
+                        <div class="flex justify-center mt-6 gap-3 flex-wrap">
+                            <button id="prev-quiz-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition transform hover:scale-105 hidden"><i class="fas fa-arrow-left mr-1"></i> Câu Trước</button>
+                            <button id="submit-answer-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105">Kiểm Tra</button>
+                            <button id="hint-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition transform hover:scale-105"><i class="fas fa-lightbulb mr-1"></i> Gợi Ý</button>
+                            <button id="next-quiz-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition transform hover:scale-105">Câu Tiếp <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                        <div class="flex justify-center mt-4 gap-3 flex-wrap">
+                            <button id="reset-quiz-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105 hidden">Làm Lại Bài</button>
+                            <button id="clear-progress-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105" title="Xóa toàn bộ kết quả đã làm của bài này"><i class="fas fa-trash-restore mr-2"></i> Xóa KQ Hiện Tại</button>
+                            <button id="export-results-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105"><i class="fas fa-file-export mr-2"></i> Xuất Kết Quả</button>
+                        </div>
+                        <div class="score-display mt-6 border-t pt-4">Điểm: <span id="quiz-score">0</span> / <span id="quiz-total-questions-score">100</span></div>
+                    </div>
+                </div>
+
+                <!-- Notes Column -->
+                <div class="w-full md:w-1/4">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Ghi Chú</h2>
+                    <div class="card p-6">
+                        <textarea id="noteTextarea" class="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-64 resize-y" placeholder="Viết ghi chú của bạn ở đây..."></textarea>
+                        <div class="flex justify-center mt-4 space-x-4">
+                            <button id="saveNoteBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105"><i class="fas fa-save mr-2"></i> Lưu</button>
+                            <button id="exportNoteBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition transform hover:scale-105"><i class="fas fa-file-word mr-2"></i> Xuất Word</button>
+                        </div>
+                        <div id="savedNotes" class="mt-6 p-4 bg-gray-100 border border-gray-200 rounded-lg">
+                            <h3 class="text-xl font-semibold text-gray-700 mb-3">Ghi Chú Đã Lưu:</h3>
+                            <ul id="noteList"><li class="text-gray-500 text-center py-4">Chưa có ghi chú nào.</li></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center text-gray-500 text-sm mt-12">
+            BẢN QUYỀN THUỘC VỀ TÁC GIẢ-NGHIÊM CẤM SỬ DỤNG VỚI MỤC ĐÍCH THƯƠNG MẠI<br>
+            Tiếng Anh Tốt Tienganhtot.vn Lưu Hoằng Trí
+        </footer>
+    </div>
+
+    <script>
+        const quizData = {
+            name: "Câu So Sánh - Cơ Bản",
+            questions: [
+                { question: "1. My brother is ___________ than me.", options: ["A. tall", "B. taller", "C. the tallest", "D. tallest"], answer: "B", explanation: "Đáp án B. So sánh hơn với tính từ ngắn 'tall' thêm đuôi '-er'. Dấu hiệu là từ 'than'.", hint: "Có từ 'than' nên ta dùng so sánh hơn. 'tall' là tính từ ngắn." },
+                { question: "2. She is the ___________ girl in our class.", options: ["A. beautiful", "B. more beautiful", "C. most beautiful", "D. beautifulest"], answer: "C", explanation: "Đáp án C. So sánh nhất với tính từ dài 'beautiful' dùng 'the most + adj'.", hint: "Có mạo từ 'the' phía trước và 'in our class' chỉ phạm vi, ta dùng so sánh nhất." },
+                { question: "3. This book is ___________ than that one.", options: ["A. thicker", "B. thick", "C. the thickest", "D. more thick"], answer: "A", explanation: "Đáp án A. 'thick' là tính từ ngắn, so sánh hơn là 'thicker'.", hint: "Tính từ ngắn 'thick' khi so sánh hơn sẽ thêm đuôi gì?" },
+                { question: "4. A car is ___________ than a bicycle.", options: ["A. expensive", "B. expensiver", "C. more expensive", "D. the most expensive"], answer: "C", explanation: "Đáp án C. So sánh hơn với tính từ dài 'expensive' dùng 'more + adj'.", hint: "Tính từ dài (3 âm tiết) khi so sánh hơn phải dùng từ 'more'." },
+                { question: "5. Today is ___________ than yesterday.", options: ["A. hot", "B. hotter", "C. hottest", "D. more hot"], answer: "B", explanation: "Đáp án B. Tính từ ngắn tận cùng 1 phụ âm trước là 1 nguyên âm thì gấp đôi phụ âm rồi thêm '-er'.", hint: "Tính từ 'hot' là tính từ ngắn đặc biệt, nhớ gấp đôi chữ 't'." },
+                { question: "6. I am not as ___________ as my sister.", options: ["A. short", "B. shorter", "C. the shortest", "D. more short"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng/không bằng: 'as + adj + as'. Tính từ giữ nguyên.", hint: "Giữa 'as ... as' luôn là tính từ ở dạng nguyên thể (không thêm -er hay more)." },
+                { question: "7. He plays football ___________ than his friend.", options: ["A. better", "B. good", "C. more good", "D. best"], answer: "A", explanation: "Đáp án A. So sánh hơn của từ bất quy tắc 'good' / 'well' là 'better'.", hint: "'good' là từ bất quy tắc, so sánh hơn của nó không thêm -er." },
+                { question: "8. This is the ___________ movie I have ever seen.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "C", explanation: "Đáp án C. So sánh nhất của từ bất quy tắc 'bad' là 'worst'.", hint: "Có mạo từ 'the' nên dùng so sánh nhất. 'bad' là từ bất quy tắc." },
+                { question: "9. My bag is ___________ than yours.", options: ["A. heavy", "B. heavier", "C. more heavy", "D. heaviest"], answer: "B", explanation: "Đáp án B. Tính từ tận cùng bằng 'y' thì đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Đổi 'y' thành 'i' rồi mới thêm '-er'." },
+                { question: "10. Russia is the ___________ country in the world.", options: ["A. large", "B. larger", "C. largest", "D. most large"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'large' thêm '-st'.", hint: "Tính từ ngắn kết thúc bằng 'e', khi so sánh nhất chỉ cần thêm '-st'." },
+                { question: "11. Peter is ___________ student in the school.", options: ["A. smart", "B. smarter", "C. the smartest", "D. most smart"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'smart' thêm '-est' và phải có 'the'.", hint: "Nói về 1 người giỏi nhất trong trường (phạm vi lớn), ta dùng so sánh nhất." },
+                { question: "12. Dogs are ___________ than cats.", options: ["A. friendly", "B. friendlier", "C. more friendly", "D. friendliest"], answer: "B", explanation: "Đáp án B. Tính từ 2 âm tiết kết thúc bằng 'y' được coi là tính từ ngắn, đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Từ 'friendly' kết thúc bằng 'y' nên áp dụng quy tắc như tính từ ngắn." },
+                { question: "13. English is ___________ as math.", options: ["A. as important", "B. more important", "C. important", "D. the most important"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng 'as + adj + as'. Ở đây phía sau đã có 'as' nên phía trước cần 'as important'.", hint: "Nhìn phía sau có từ 'as', đây là cấu trúc so sánh bằng." },
+                { question: "14. She runs ___________ than me.", options: ["A. fast", "B. faster", "C. more fast", "D. fastest"], answer: "B", explanation: "Đáp án B. Trạng từ ngắn 'fast' có so sánh hơn là 'faster'.", hint: "'fast' vừa là tính từ vừa là trạng từ ngắn. So sánh hơn cứ thêm '-er'." },
+                { question: "15. This puzzle is ___________ than the old one.", options: ["A. easy", "B. easier", "C. more easy", "D. easiest"], answer: "B", explanation: "Đáp án B. Tính từ ngắn kết thúc bằng 'y' thì đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Đuôi 'y' đổi thành 'i' và thêm '-er'." },
+                { question: "16. Mount Everest is the ___________ mountain in the world.", options: ["A. high", "B. higher", "C. highest", "D. most high"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'high' là 'highest'.", hint: "Núi cao nhất thế giới, phải dùng so sánh nhất." },
+                { question: "17. Winter is ___________ than summer.", options: ["A. cold", "B. colder", "C. coldest", "D. more cold"], answer: "B", explanation: "Đáp án B. So sánh hơn của tính từ ngắn 'cold' là 'colder'.", hint: "Có từ 'than', tính từ ngắn thêm '-er'." },
+                { question: "18. Who is the ___________ person in your family?", options: ["A. old", "B. older", "C. oldest", "D. more old"], answer: "C", explanation: "Đáp án C. So sánh nhất 'the oldest'.", hint: "Có từ 'the' phía trước chỗ trống." },
+                { question: "19. The test was ___________ than I thought.", options: ["A. difficult", "B. more difficult", "C. most difficult", "D. the most difficult"], answer: "B", explanation: "Đáp án B. So sánh hơn của tính từ dài 'difficult' là 'more difficult'.", hint: "Có từ 'than', 'difficult' là tính từ dài." },
+                { question: "20. I feel ___________ today than yesterday.", options: ["A. happy", "B. happier", "C. happiest", "D. more happy"], answer: "B", explanation: "Đáp án B. Đổi 'y' thành 'i' rồi thêm '-er'.", hint: "So sánh hơn, từ 'happy' kết thúc bằng 'y'." },
+                { question: "21. A cheetah is ___________ than a tiger.", options: ["A. fast", "B. faster", "C. the fastest", "D. fastest"], answer: "B", explanation: "Đáp án B. So sánh hơn với 'fast' (tính từ ngắn).", hint: "Có 'than' nên ta dùng so sánh hơn." },
+                { question: "22. The blue whale is the ___________ animal on Earth.", options: ["A. large", "B. larger", "C. largest", "D. most large"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'large' là 'largest'.", hint: "Có mạo từ 'the', đây là cấu trúc so sánh nhất." },
+                { question: "23. Gold is ___________ than silver.", options: ["A. valuable", "B. valuabler", "C. more valuable", "D. most valuable"], answer: "C", explanation: "Đáp án C. 'valuable' là tính từ dài, so sánh hơn dùng 'more'.", hint: "'valuable' (có giá trị) là tính từ dài." },
+                { question: "24. My grandfather is the ___________ person I know.", options: ["A. wise", "B. wiser", "C. wisest", "D. most wise"], answer: "C", explanation: "Đáp án C. 'wise' (thông thái) là tính từ ngắn, so sánh nhất thêm '-st'.", hint: "Có 'the', dùng so sánh nhất." },
+                { question: "25. This exercise is as ___________ as the last one.", options: ["A. simple", "B. simpler", "C. simplest", "D. more simple"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng: as + adj nguyên thể + as.", hint: "Giữa 'as ... as' luôn giữ nguyên tính từ." },
+                { question: "26. Summer is usually ___________ than spring.", options: ["A. warm", "B. warmer", "C. warmest", "D. more warm"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'warm' (tính từ ngắn).", hint: "Có từ 'than'." },
+                { question: "27. That was the ___________ joke I have ever heard.", options: ["A. funny", "B. funnier", "C. funniest", "D. most funny"], answer: "C", explanation: "Đáp án C. 'funny' đổi 'y' thành 'i' rồi thêm '-est' trong so sánh nhất.", hint: "Có 'the' và từ tận cùng bằng 'y'." },
+                { question: "28. A turtle is ___________ than a rabbit.", options: ["A. slow", "B. slower", "C. slowest", "D. more slow"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'slow'.", hint: "Con rùa chậm hơn con thỏ, dùng so sánh hơn." },
+                { question: "29. She speaks English ___________ than me.", options: ["A. fluent", "B. fluently", "C. more fluently", "D. most fluently"], answer: "C", explanation: "Đáp án C. Bổ nghĩa cho động từ 'speaks' cần trạng từ 'fluently'. So sánh hơn của trạng từ dài dùng 'more'.", hint: "Đây là so sánh của trạng từ (bổ nghĩa cho động từ speak)." },
+                { question: "30. He is ___________ student in the class.", options: ["A. the lazy", "B. lazier", "C. the laziest", "D. most lazy"], answer: "C", explanation: "Đáp án C. 'lazy' -> 'the laziest' (tính từ kết thúc bằng y coi như tính từ ngắn).", hint: "So sánh nhất của 'lazy'." },
+                { question: "31. A plane is ___________ than a car.", options: ["A. safe", "B. safer", "C. safest", "D. more safe"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'safe' thêm '-r'.", hint: "Tính từ ngắn kết thúc bằng 'e' chỉ cần thêm '-r'." },
+                { question: "32. This is the ___________ day of my life!", options: ["A. good", "B. better", "C. best", "D. most good"], answer: "C", explanation: "Đáp án C. So sánh nhất của từ bất quy tắc 'good' là 'best'.", hint: "Ngày tuyệt vời nhất, 'good' là từ bất quy tắc." },
+                { question: "33. The weather today is ___________ than yesterday.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'bad' là 'worse'.", hint: "So sánh hơn của từ bất quy tắc 'bad'." },
+                { question: "34. My house is ___________ from school than yours.", options: ["A. far", "B. farther", "C. farthest", "D. more far"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'far' là 'farther' hoặc 'further'.", hint: "So sánh hơn của 'far'." },
+                { question: "35. She has ___________ books than I do.", options: ["A. many", "B. much", "C. more", "D. most"], answer: "C", explanation: "Đáp án C. So sánh hơn của 'many' là 'more'.", hint: "Có nhiều sách hơn, dùng so sánh hơn của 'many'." },
+                { question: "36. This shirt is ___________ than that one.", options: ["A. cheap", "B. cheaper", "C. cheapest", "D. more cheap"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'cheap'.", hint: "'cheap' là tính từ ngắn." },
+                { question: "37. He is the ___________ player on the team.", options: ["A. young", "B. younger", "C. youngest", "D. most young"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'young'.", hint: "Cầu thủ trẻ nhất đội." },
+                { question: "38. Reading is ___________ than watching TV.", options: ["A. useful", "B. usefuller", "C. more useful", "D. most useful"], answer: "C", explanation: "Đáp án C. 'useful' là tính từ dài, so sánh hơn dùng 'more'.", hint: "Từ 'useful' có 2 âm tiết nhưng không kết thúc bằng 'y', 'le', 'ow', 'er', thường dùng 'more'." },
+                { question: "39. The Pacific Ocean is the ___________ ocean.", options: ["A. deep", "B. deeper", "C. deepest", "D. most deep"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'deep'.", hint: "Đại dương sâu nhất." },
+                { question: "40. I am as ___________ as a bee.", options: ["A. busy", "B. busier", "C. busiest", "D. more busy"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng: as + adj + as.", hint: "Giữa 2 chữ 'as' là tính từ gốc." },
+                { question: "41. His car is ___________ than my car.", options: ["A. modern", "B. moderner", "C. more modern", "D. most modern"], answer: "C", explanation: "Đáp án C. 'modern' là tính từ dài.", hint: "'modern' có 2 âm tiết nhưng là tính từ dài." },
+                { question: "42. She is the ___________ singer I know.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'bad'.", hint: "So sánh nhất của từ bất quy tắc 'bad'." },
+                { question: "43. This is ___________ lesson in the book.", options: ["A. the hard", "B. harder", "C. the hardest", "D. most hard"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'hard'.", hint: "Bài học khó nhất." },
+                { question: "44. The test is not as ___________ as I expected.", options: ["A. difficult", "B. more difficult", "C. most difficult", "D. difficultest"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng phủ định (not as ... as), tính từ giữ nguyên.", hint: "Giữa 'as ... as' luôn dùng từ gốc." },
+                { question: "45. Elephants are ___________ than lions.", options: ["A. strong", "B. stronger", "C. strongest", "D. more strong"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'strong'.", hint: "Voi khỏe hơn sư tử." },
+                { question: "46. What is the ___________ river in your country?", options: ["A. long", "B. longer", "C. longest", "D. most long"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'long'.", hint: "Sông dài nhất, có mạo từ 'the'." },
+                { question: "47. A motorbike is ___________ than a bicycle.", options: ["A. fast", "B. faster", "C. fastest", "D. more fast"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'fast'.", hint: "So sánh hơn, tính từ ngắn." },
+                { question: "48. That was the ___________ moment of my life.", options: ["A. happy", "B. happier", "C. happiest", "D. most happy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'happy' (đổi y thành i thêm est).", hint: "Khoảnh khắc hạnh phúc nhất." },
+                { question: "49. This dress is ___________ than that one.", options: ["A. pretty", "B. prettier", "C. prettiest", "D. more pretty"], answer: "B", explanation: "Đáp án B. 'pretty' tận cùng bằng 'y', đổi 'y' thành 'i' thêm '-er'.", hint: "Từ kết thúc bằng 'y'." },
+                { question: "50. He is the ___________ boy in our class.", options: ["A. tall", "B. taller", "C. tallest", "D. most tall"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'tall'.", hint: "Cậu bé cao nhất." },
+                { question: "51. I have ___________ time than you.", options: ["A. little", "B. less", "C. least", "D. fewer"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'little' (không đếm được) là 'less'.", hint: "So sánh hơn của 'little' (ít)." },
+                { question: "52. She makes ___________ mistakes than her brother.", options: ["A. few", "B. fewer", "C. less", "D. fewest"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'few' (đếm được) là 'fewer'.", hint: "'mistakes' đếm được nên dùng 'fewer' thay vì 'less'." },
+                { question: "53. He is as ___________ as a fox.", options: ["A. clever", "B. cleverer", "C. cleverest", "D. more clever"], answer: "A", explanation: "Đáp án A. Giữa 'as ... as' dùng tính từ gốc.", hint: "Khôn như cáo, so sánh bằng." },
+                { question: "54. This room is ___________ than my bedroom.", options: ["A. clean", "B. cleaner", "C. cleanest", "D. more clean"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'clean'.", hint: "Phòng này sạch hơn." },
+                { question: "55. February is the ___________ month of the year.", options: ["A. short", "B. shorter", "C. shortest", "D. most short"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'short'.", hint: "Tháng ngắn nhất." },
+                { question: "56. A mouse is ___________ than a cat.", options: ["A. small", "B. smaller", "C. smallest", "D. more small"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'small'.", hint: "Chuột nhỏ hơn mèo." },
+                { question: "57. The countryside is ___________ than the city.", options: ["A. quiet", "B. quieter", "C. quietest", "D. more quiet"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'quiet'.", hint: "Nông thôn yên tĩnh hơn." },
+                { question: "58. He is the ___________ man in the village.", options: ["A. rich", "B. richer", "C. richest", "D. most rich"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'rich'.", hint: "Người đàn ông giàu nhất." },
+                { question: "59. Health is ___________ than money.", options: ["A. important", "B. importanter", "C. more important", "D. most important"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'important'.", hint: "Sức khỏe quan trọng hơn tiền bạc." },
+                { question: "60. This is the ___________ building in the city.", options: ["A. high", "B. higher", "C. highest", "D. most high"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'high'.", hint: "Tòa nhà cao nhất." },
+                { question: "61. My homework is ___________ than yours.", options: ["A. easy", "B. easier", "C. easiest", "D. more easy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'easy' (tận cùng y đổi thành i).", hint: "Bài tập của tôi dễ hơn." },
+                { question: "62. Sarah is ___________ than her sister.", options: ["A. thin", "B. thinner", "C. thinnest", "D. more thin"], answer: "B", explanation: "Đáp án B. Gấp đôi phụ âm 'n' rồi thêm '-er'.", hint: "Tính từ 'thin' cần gấp đôi phụ âm cuối." },
+                { question: "63. The snail is the ___________ animal.", options: ["A. slow", "B. slower", "C. slowest", "D. most slow"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'slow'.", hint: "Động vật chậm nhất." },
+                { question: "64. Traveling by plane is ___________ than traveling by train.", options: ["A. fast", "B. faster", "C. fastest", "D. more fast"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'fast'.", hint: "Máy bay nhanh hơn tàu hỏa." },
+                { question: "65. Jupiter is the ___________ planet in our solar system.", options: ["A. big", "B. bigger", "C. biggest", "D. most big"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'big' (gấp đôi g).", hint: "Hành tinh lớn nhất." },
+                { question: "66. Her dress is ___________ than my dress.", options: ["A. beautiful", "B. beautifuller", "C. more beautiful", "D. most beautiful"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'beautiful'.", hint: "Chiếc váy đẹp hơn." },
+                { question: "67. Today is the ___________ day of the week.", options: ["A. busy", "B. busier", "C. busiest", "D. most busy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'busy'.", hint: "Ngày bận rộn nhất." },
+                { question: "68. Water is ___________ than juice.", options: ["A. healthy", "B. healthier", "C. healthiest", "D. more healthy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'healthy' (kết thúc bằng y).", hint: "Nước tốt cho sức khỏe hơn." },
+                { question: "69. He works as ___________ as a bee.", options: ["A. hard", "B. harder", "C. hardest", "D. more hard"], answer: "A", explanation: "Đáp án A. Giữa 'as ... as' dùng tính từ gốc.", hint: "Làm việc chăm chỉ như ong." },
+                { question: "70. This problem is ___________ than the previous one.", options: ["A. simple", "B. simpler", "C. simplest", "D. more simple"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'simple'.", hint: "Vấn đề này đơn giản hơn." },
+                { question: "71. Who is the ___________ student in your class?", options: ["A. smart", "B. smarter", "C. smartest", "D. most smart"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'smart'.", hint: "Học sinh thông minh nhất." },
+                { question: "72. My bag is ___________ than your bag.", options: ["A. heavy", "B. heavier", "C. heaviest", "D. more heavy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'heavy'.", hint: "Cặp của tôi nặng hơn." },
+                { question: "73. That is the ___________ story I have ever read.", options: ["A. sad", "B. sadder", "C. saddest", "D. most sad"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'sad' (gấp đôi phụ âm d).", hint: "Câu chuyện buồn nhất." },
+                { question: "74. The countryside is ___________ than the city.", options: ["A. peaceful", "B. peacefuller", "C. more peaceful", "D. most peaceful"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'peaceful'.", hint: "Nông thôn thanh bình hơn." },
+                { question: "75. She is as ___________ as an angel.", options: ["A. kind", "B. kinder", "C. kindest", "D. more kind"], answer: "A", explanation: "Đáp án A. So sánh bằng với 'kind'.", hint: "Tốt bụng như một thiên thần." },
+                { question: "76. This knife is ___________ than that one.", options: ["A. sharp", "B. sharper", "C. sharpest", "D. more sharp"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'sharp'.", hint: "Con dao này sắc hơn." },
+                { question: "77. It is the ___________ building in the world.", options: ["A. tall", "B. taller", "C. tallest", "D. most tall"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'tall'.", hint: "Tòa nhà cao nhất." },
+                { question: "78. His English is ___________ than my English.", options: ["A. good", "B. better", "C. best", "D. more good"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'good'.", hint: "Tiếng Anh của anh ấy tốt hơn." },
+                { question: "79. The weather is getting ___________.", options: ["A. cold", "B. colder", "C. coldest", "D. more cold"], answer: "B", explanation: "Đáp án B. Cấu trúc getting + so sánh hơn (ngày càng lạnh hơn).", hint: "Thời tiết đang ngày càng trở nên..." },
+                { question: "80. She is the ___________ girl in the team.", options: ["A. fast", "B. faster", "C. fastest", "D. most fast"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'fast'.", hint: "Cô gái nhanh nhất." },
+                { question: "81. A bicycle is ___________ than a motorbike.", options: ["A. cheap", "B. cheaper", "C. cheapest", "D. more cheap"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'cheap'.", hint: "Xe đạp rẻ hơn xe máy." },
+                { question: "82. This is the ___________ picture in the gallery.", options: ["A. ugly", "B. uglier", "C. ugliest", "D. most ugly"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'ugly'.", hint: "Bức tranh xấu nhất." },
+                { question: "83. My room is ___________ than his room.", options: ["A. dark", "B. darker", "C. darkest", "D. more dark"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'dark'.", hint: "Phòng tôi tối hơn." },
+                { question: "84. An elephant is the ___________ land animal.", options: ["A. heavy", "B. heavier", "C. heaviest", "D. most heavy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'heavy'.", hint: "Động vật trên cạn nặng nhất." },
+                { question: "85. I am not as ___________ as you.", options: ["A. brave", "B. braver", "C. bravest", "D. more brave"], answer: "A", explanation: "Đáp án A. So sánh bằng phủ định (not as ... as).", hint: "Tôi không dũng cảm bằng bạn." },
+                { question: "86. That was the ___________ test we had.", options: ["A. easy", "B. easier", "C. easiest", "D. most easy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'easy'.", hint: "Bài kiểm tra dễ nhất." },
+                { question: "87. The sun is ___________ than the moon.", options: ["A. bright", "B. brighter", "C. brightest", "D. more bright"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'bright'.", hint: "Mặt trời sáng hơn Mặt trăng." },
+                { question: "88. This chair is ___________ than the sofa.", options: ["A. hard", "B. harder", "C. hardest", "D. more hard"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'hard'.", hint: "Chiếc ghế này cứng hơn." },
+                { question: "89. She has the ___________ hair in the family.", options: ["A. long", "B. longer", "C. longest", "D. most long"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'long'.", hint: "Tóc dài nhất." },
+                { question: "90. A snail is ___________ than a turtle.", options: ["A. slow", "B. slower", "C. slowest", "D. more slow"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'slow'.", hint: "Ốc sên chậm hơn rùa." },
+                { question: "91. The red car is ___________ than the blue car.", options: ["A. fast", "B. faster", "C. fastest", "D. more fast"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'fast'.", hint: "Xe đỏ nhanh hơn." },
+                { question: "92. This is the ___________ day of the month.", options: ["A. cold", "B. colder", "C. coldest", "D. most cold"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'cold'.", hint: "Ngày lạnh nhất." },
+                { question: "93. I feel ___________ today than I did yesterday.", options: ["A. good", "B. better", "C. best", "D. more good"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'good' là 'better'.", hint: "Hôm nay tôi thấy tốt hơn hôm qua." },
+                { question: "94. The test was the ___________ I have ever taken.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'bad' là 'worst'.", hint: "Bài kiểm tra tệ nhất." },
+                { question: "95. He is ___________ than his friend.", options: ["A. intelligent", "B. intelligenter", "C. more intelligent", "D. most intelligent"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'intelligent'.", hint: "Thông minh hơn." },
+                { question: "96. My dog is as ___________ as your dog.", options: ["A. cute", "B. cuter", "C. cutest", "D. more cute"], answer: "A", explanation: "Đáp án A. So sánh bằng với 'cute'.", hint: "Dễ thương bằng." },
+                { question: "97. It is ___________ to read a book than to watch TV.", options: ["A. good", "B. better", "C. best", "D. more good"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'good'.", hint: "Đọc sách thì tốt hơn..." },
+                { question: "98. She is the ___________ student in the school.", options: ["A. polite", "B. politer", "C. most polite", "D. more polite"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ dài 'polite' (đôi khi có thể dùng politer/politest nhưng most polite phổ biến và chuẩn xác hơn cho dạng dài).", hint: "Học sinh lịch sự nhất." },
+                { question: "99. This box is ___________ than that one.", options: ["A. light", "B. lighter", "C. lightest", "D. more light"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'light' (nhẹ).", hint: "Hộp này nhẹ hơn." },
+                { question: "100. Everest is the ___________ mountain on Earth.", options: ["A. high", "B. higher", "C. highest", "D. most high"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'high'.", hint: "Ngọn núi cao nhất." }
+            ]
+        };
+
+        // Global state variables
+        let currentTopicKey = 'basic_comparisons'; 
+        let quizQuestions = []; 
+        let currentQuizIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizStartTime = null;
+        let quizEndTime = null;
+
+        // DOM Elements
+        const quizQuestionElem = document.getElementById('quiz-question');
+        const quizOptionsElem = document.getElementById('quiz-options');
+        const currentQuestionSpan = document.getElementById('current-question');
+        const totalQuestionsSpan = document.getElementById('total-questions-quiz');
+        const submitAnswerBtn = document.getElementById('submit-answer-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const nextQuizBtn = document.getElementById('next-quiz-btn');
+        const prevQuizBtn = document.getElementById('prev-quiz-btn');
+        const resetQuizBtn = document.getElementById('reset-quiz-btn');
+        const clearProgressBtn = document.getElementById('clear-progress-btn');
+        const exportResultsBtn = document.getElementById('export-results-btn');
+        const quizScoreElem = document.getElementById('quiz-score');
+        const quizTotalQuestionsElem = document.getElementById('quiz-total-questions-score');
+        const resultMessageElem = document.getElementById('result-message');
+        const explanationTextElem = document.getElementById('explanation-text');
+        const hintTextElem = document.getElementById('hint-text');
+        const questionNavigatorElem = document.getElementById('question-navigator');
+        const noteTextarea = document.getElementById('noteTextarea');
+        const saveNoteBtn = document.getElementById('saveNoteBtn');
+        const exportNoteBtn = document.getElementById('exportNoteBtn');
+        const noteList = document.getElementById('noteList');
+        const generalMessageBox = document.getElementById('general-message-box');
+        
+        function initApp() {
+            quizQuestions = quizData.questions.map(q => ({...q})); 
+            quizQuestions.forEach(q => {
+                q.answered = false;
+                q.isCorrect = null;
+                q.userAnswer = null;
+                q.hintUsed = false;
+            });
+            
+            totalQuestionsSpan.textContent = quizQuestions.length;
+            quizTotalQuestionsElem.textContent = quizQuestions.length;
+            
+            loadQuizState(); 
+        }
+
+        function saveQuizState() {
+            const stateToSave = {
+                quizQuestionsState: quizQuestions.map(q => ({
+                    answered: q.answered,
+                    isCorrect: q.isCorrect,
+                    userAnswer: q.userAnswer,
+                    hintUsed: q.hintUsed
+                })),
+                currentQuizIndex: currentQuizIndex,
+                score: score,
+                quizStartTime: quizStartTime,
+                quizEndTime: quizEndTime
+            };
+            localStorage.setItem(currentTopicKey + '_quizState', JSON.stringify(stateToSave));
+        }
+
+        function loadQuizState() {
+            const savedState = localStorage.getItem(currentTopicKey + '_quizState');
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                parsedState.quizQuestionsState.forEach((savedQState, index) => {
+                    if (quizQuestions[index]) {
+                        Object.assign(quizQuestions[index], savedQState);
+                    }
+                });
+                currentQuizIndex = parsedState.currentQuizIndex || 0;
+                score = parsedState.score || 0;
+                quizStartTime = parsedState.quizStartTime;
+                quizEndTime = parsedState.quizEndTime;
+            } else {
+                resetQuiz(false); 
+            }
+            
+            quizScoreElem.textContent = score;
+            renderQuestionNavigator();
+            loadQuizQuestion();
+        }
+
+        function updateNavigationButtons() {
+            // Hiển thị/ẩn nút trước và tiếp theo dựa trên vị trí câu hỏi
+            prevQuizBtn.classList.toggle('hidden', currentQuizIndex === 0);
+            nextQuizBtn.classList.toggle('hidden', currentQuizIndex === quizQuestions.length - 1);
+        }
+
+        function loadQuizQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            quizQuestionElem.innerHTML = q.question.replace(/___________/g, '<span class="highlight-keyword">___________</span>');
+
+            quizOptionsElem.innerHTML = '';
+            selectedOption = null;
+            
+            currentQuestionSpan.textContent = currentQuizIndex + 1;
+
+            q.options.forEach((option) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option';
+                optionDiv.innerHTML = `<button>${option}</button>`;
+                
+                if (!q.answered) {
+                    optionDiv.addEventListener('click', () => selectOption(optionDiv));
+                } else {
+                    optionDiv.classList.add('disabled-option');
+                }
+                
+                quizOptionsElem.appendChild(optionDiv);
+            });
+
+            if (q.answered) {
+                displayAnswerFeedback();
+            } else {
+                // Trạng thái chưa trả lời
+                resultMessageElem.classList.add('hidden');
+                explanationTextElem.classList.add('hidden');
+                hintTextElem.classList.add('hidden');
+                submitAnswerBtn.classList.remove('hidden');
+                hintBtn.classList.remove('hidden');
+                
+                hintBtn.disabled = q.hintUsed;
+                hintBtn.classList.toggle('opacity-50', q.hintUsed);
+                hintBtn.classList.toggle('cursor-not-allowed', q.hintUsed);
+                
+                if(q.hintUsed) {
+                    hintTextElem.textContent = q.hint;
+                    hintTextElem.classList.remove('hidden');
+                }
+            }
+
+            updateNavigationButtons();
+            updateNavigatorUI();
+        }
+
+        function selectOption(optionDiv) {
+            if (selectedOption) {
+                selectedOption.classList.remove('selected');
+            }
+            selectedOption = optionDiv;
+            selectedOption.classList.add('selected');
+        }
+
+        function checkAnswer() {
+            if (!selectedOption) {
+                showGeneralMessage('Vui lòng chọn một đáp án!', 'warning');
+                return;
+            }
+
+            const q = quizQuestions[currentQuizIndex];
+            if (q.answered) return;
+
+            const userAnswerText = selectedOption.querySelector('button').textContent.trim();
+            q.isCorrect = (userAnswerText.startsWith(q.answer + "."));
+            q.answered = true;
+            q.userAnswer = userAnswerText;
+
+            if (q.isCorrect) score++;
+            
+            quizScoreElem.textContent = score;
+            displayAnswerFeedback();
+            saveQuizState();
+            
+            // Check if all questions are answered
+            if(quizQuestions.every(question => question.answered)) {
+                showFinalScore();
+            }
+        }
+        
+        function displayAnswerFeedback() {
+            const q = quizQuestions[currentQuizIndex];
+            
+            Array.from(quizOptionsElem.children).forEach(optionDiv => {
+                const optionText = optionDiv.querySelector('button').textContent.trim();
+                optionDiv.style.cursor = 'default';
+                optionDiv.classList.add('disabled-option');
+                optionDiv.replaceWith(optionDiv.cloneNode(true)); // Remove event listeners
+
+                if (optionText.startsWith(q.answer + ".")) {
+                    optionDiv.classList.add('correct');
+                }
+                if (optionText === q.userAnswer) {
+                    optionDiv.classList.add(q.isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            document.querySelectorAll('.quiz-option').forEach(clonedDiv => {
+                 const optionText = clonedDiv.querySelector('button').textContent.trim();
+                 if (optionText.startsWith(q.answer + ".")) {
+                    clonedDiv.classList.add('correct');
+                }
+                if (optionText === q.userAnswer) {
+                    clonedDiv.classList.add(q.isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+            
+            resultMessageElem.textContent = q.isCorrect ? 'Chính xác!' : 'Sai rồi.';
+            resultMessageElem.className = `result-message ${q.isCorrect ? 'correct' : 'incorrect'}`;
+            resultMessageElem.classList.remove('hidden');
+            explanationTextElem.textContent = q.explanation;
+            explanationTextElem.classList.remove('hidden');
+            
+            submitAnswerBtn.classList.add('hidden');
+            hintBtn.classList.add('hidden');
+            hintTextElem.classList.add('hidden');
+
+            updateNavigatorUI();
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                loadQuizQuestion();
+            }
+        }
+
+        function showFinalScore() {
+            resetQuizBtn.classList.remove('hidden');
+            if (!quizEndTime) {
+                quizEndTime = Date.now();
+                saveQuizState();
+            }
+            showGeneralMessage(`Chúc mừng bạn đã hoàn thành bài tập! Điểm số: ${score}/${quizQuestions.length}`, 'info');
+        }
+
+        function resetQuiz(shouldSave = true) {
+            currentQuizIndex = 0;
+            score = 0;
+            quizQuestions.forEach(q => {
+                q.answered = false;
+                q.isCorrect = null;
+                q.userAnswer = null;
+                q.hintUsed = false;
+            });
+            quizStartTime = Date.now();
+            quizEndTime = null;
+            quizScoreElem.textContent = score;
+            
+            if (shouldSave) {
+                saveQuizState();
+            }
+            
+            renderQuestionNavigator();
+            loadQuizQuestion();
+            resetQuizBtn.classList.add('hidden');
+        }
+
+        function clearCurrentProgress() {
+            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ kết quả đã làm và làm lại từ đầu không?")) {
+                localStorage.removeItem(currentTopicKey + '_quizState');
+                resetQuiz(true); 
+                showGeneralMessage('Đã xóa kết quả lưu. Hãy bắt đầu làm lại bài!', 'info');
+            }
+        }
+
+        function showHint() {
+            const q = quizQuestions[currentQuizIndex];
+            if (q.hint && !q.answered) {
+                hintTextElem.textContent = q.hint;
+                hintTextElem.classList.remove('hidden');
+                q.hintUsed = true;
+                hintBtn.disabled = true;
+                hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                saveQuizState();
+            }
+        }
+
+        function renderQuestionNavigator() {
+            questionNavigatorElem.innerHTML = '';
+            quizQuestions.forEach((q, index) => {
+                const navButton = document.createElement('button');
+                navButton.className = 'navigator-button';
+                navButton.textContent = index + 1;
+                navButton.addEventListener('click', () => goToQuestion(index));
+                questionNavigatorElem.appendChild(navButton);
+            });
+            updateNavigatorUI();
+        }
+
+        function updateNavigatorUI() {
+            Array.from(questionNavigatorElem.children).forEach((button, index) => {
+                const q = quizQuestions[index];
+                button.classList.remove('active-question', 'answered-correctly', 'answered-incorrectly');
+                if (index === currentQuizIndex) {
+                    button.classList.add('active-question');
+                }
+                if (q && q.answered) {
+                    button.classList.add(q.isCorrect ? 'answered-correctly' : 'answered-incorrectly');
+                }
+            });
+        }
+
+        function goToQuestion(index) {
+            currentQuizIndex = index;
+            loadQuizQuestion();
+        }
+
+        function exportQuizResults() {
+             const totalQuestions = quizQuestions.length;
+            const correctAnswers = score;
+            const answeredQuestions = quizQuestions.filter(q => q.answered).length;
+            const start = quizStartTime ? new Date(quizStartTime) : new Date();
+            const end = quizEndTime ? new Date(quizEndTime) : new Date();
+            const durationMs = end.getTime() - start.getTime();
+
+            const minutes = Math.floor((durationMs / 1000) / 60);
+            const seconds = Math.floor((durationMs / 1000) % 60);
+            let durationString = `${minutes} phút ${seconds} giây`;
+
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Kết Quả - ${quizData.name}</title>
+                </head><body>
+                <h1>Kết Quả: ${quizData.name}</h1>
+                <p><strong>Điểm của bạn:</strong> ${correctAnswers} / ${totalQuestions}</p>
+                <p><strong>Thời gian làm bài:</strong> ${durationString}</p>
+                <h2>Chi tiết:</h2><ol>`;
+
+            quizQuestions.forEach((q, index) => {
+                if (q.answered) {
+                    htmlContent += `<li>
+                        <p><strong>Câu ${index + 1}:</strong> ${q.question}</p>
+                        <p><strong>Đáp án của bạn:</strong> ${q.userAnswer} (${q.isCorrect ? 'Chính xác' : 'Sai'})</p>
+                        <p><strong>Đáp án đúng:</strong> ${q.options.find(opt => opt.startsWith(q.answer + "."))}</p>
+                        <p><em>${q.explanation}</em></p>
+                    </li>`;
+                }
+            });
+
+            htmlContent += `</ol></body></html>`;
+
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ket_qua_so_sanh.doc`;
+            link.click();
+            showGeneralMessage('Đã xuất file kết quả thành công!', 'info');
+        }
+
+        function showGeneralMessage(msg, type = 'info') {
+            generalMessageBox.textContent = msg;
+            generalMessageBox.className = `message-box border block ${type === 'error' ? 'bg-red-100 text-red-800 border-red-400' : type === 'warning' ? 'bg-yellow-100 text-yellow-800 border-yellow-400' : 'bg-blue-100 text-blue-800 border-blue-400'}`;
+            setTimeout(() => { generalMessageBox.classList.add('hidden'); }, 4000);
+        }
+
+        function getNoteStorageKey() {
+            return currentTopicKey + '_notes';
+        }
+
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+            noteList.innerHTML = notes.length ? '' : '<li class="text-gray-500 text-center py-4">Chưa có ghi chú nào.</li>';
+            notes.forEach((note, index) => {
+                const li = document.createElement('li');
+                li.className = 'note-item';
+                li.innerHTML = `<span class="note-text-display">${note}</span><button data-index="${index}" class="delete-note-btn"><i class="fas fa-trash-alt"></i></button>`;
+                noteList.appendChild(li);
+            });
+            attachDeleteListeners();
+        }
+
+        function saveNote() {
+            const note = noteTextarea.value.trim();
+            if (note) {
+                let notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+                notes.push(note);
+                localStorage.setItem(getNoteStorageKey(), JSON.stringify(notes));
+                noteTextarea.value = '';
+                loadNotes();
+                showGeneralMessage('Ghi chú đã được lưu!', 'info');
+            }
+        }
+
+        function exportNotes() {
+            const notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+            if(notes.length === 0) {
+                showGeneralMessage('Bạn chưa có ghi chú nào để xuất!', 'warning');
+                return;
+            }
+            
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Ghi Chú - ${quizData.name}</title>
+                </head><body>
+                <h2>Ghi Chú: ${quizData.name}</h2>
+                <ul>`;
+                
+            notes.forEach(note => {
+                htmlContent += `<li>${note.replace(/\n/g, '<br>')}</li>`;
+            });
+            
+            htmlContent += `</ul></body></html>`;
+
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ghi_chu_so_sanh.doc`;
+            link.click();
+            showGeneralMessage('Đã xuất file ghi chú thành công!', 'info');
+        }
+
+        function attachDeleteListeners() {
+            document.querySelectorAll('.delete-note-btn').forEach(button => {
+                button.onclick = (event) => {
+                    const index = parseInt(event.currentTarget.dataset.index);
+                    let notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+                    notes.splice(index, 1);
+                    localStorage.setItem(getNoteStorageKey(), JSON.stringify(notes));
+                    loadNotes();
+                };
+            });
+        }
+        
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            submitAnswerBtn.addEventListener('click', checkAnswer);
+            hintBtn.addEventListener('click', showHint);
+            nextQuizBtn.addEventListener('click', nextQuestion);
+            prevQuizBtn.addEventListener('click', prevQuestion);
+            resetQuizBtn.addEventListener('click', () => resetQuiz(true));
+            clearProgressBtn.addEventListener('click', clearCurrentProgress);
+            exportResultsBtn.addEventListener('click', exportQuizResults);
+            saveNoteBtn.addEventListener('click', saveNote);
+            exportNoteBtn.addEventListener('click', exportNotes);
+            
+            initApp(); 
+            loadNotes();
+        });
+    </script>
+</body>
+</html>
