@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Ngữ Pháp Tiếng Anh - Đa Cấp Độ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9;
+            --text-main: #334155;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Navigation Badges Styles --- */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .level-badge {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            font-weight: 700;
+        }
+        .level-badge.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .level-badge.inactive {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            border-color: #e2e8f0;
+        }
+        .level-badge.inactive:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+
+        /* --- Main Theory Flashcard Styles --- */
+        .flashcard-container {
+            perspective: 1000px;
+            height: 240px;
+            width: 100%;
+        }
+        .flashcard {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .flashcard:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 16px;
+        }
+        .flashcard-front {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            color: var(--text-main);
+        }
+        .flashcard-back {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce3 100%);
+            border: 2px solid #bbf7d0;
+            color: #166534;
+            transform: rotateY(180deg);
+            padding: 1rem 1.5rem;
+        }
+        
+        /* --- Mini Vocab Flashcard Styles --- */
+        .mini-flashcard {
+            perspective: 1000px;
+        }
+        .mini-flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 0.75rem;
+        }
+        .mini-flashcard:hover .mini-flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .mini-front, .mini-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            text-align: center;
+        }
+        .mini-back {
+            transform: rotateY(180deg);
+        }
+
+        /* --- Scrollbar Customization --- */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* --- Quiz Styles --- */
+        .quiz-option {
+            background-color: #f8fafc;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        .quiz-option:hover:not(.disabled-option) {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        .quiz-option.selected {
+            background-color: #eff6ff;
+            border-color: var(--primary);
+            color: var(--primary-hover);
+        }
+        .quiz-option.correct {
+            background-color: #f0fdf4;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .quiz-option.incorrect {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+            color: #b91c1c;
+        }
+        .quiz-option button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+            cursor: inherit;
+            outline: none;
+        }
+        .disabled-option {
+            cursor: default;
+        }
+        
+        .result-message {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .result-message.correct {
+            background-color: #dcfce3;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .result-message.incorrect {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* --- Navigator Styles --- */
+        .navigator-button { 
+            background-color: #f1f5f9; 
+            padding: 0.5rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            text-align: center; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            border: 2px solid transparent;
+        }
+        .navigator-button:hover { background-color: #e2e8f0; }
+        .navigator-button.active-question { 
+            background-color: var(--primary); 
+            color: #ffffff; 
+            border-color: var(--primary-hover);
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+        .navigator-button.answered-correctly { background-color: #dcfce3; color: #166534; border-color: #bbf7d0; }
+        .navigator-button.answered-incorrectly { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        
+        .highlight-keyword { color: var(--primary); font-weight: 800; border-bottom: 2px dashed var(--primary); padding-bottom: 2px;}
+        .hint-text { margin-top: 1rem; padding: 1rem; border-radius: 12px; background-color: #fffbeb; color: #92400e; border: 1px dashed #fcd34d; text-align: left; }
+
+        .btn-custom {
+            transition: all 0.3s;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-custom:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500 mb-3 drop-shadow-sm">Hệ Thống Ngữ Pháp Tiếng Anh</h1>
+            <p class="text-lg text-slate-500 font-medium">Luyện tập thông minh, ghi nhớ qua Flashcards và Trắc nghiệm</p>
+        </header>
+
+        <!-- Trình Điều Hướng Cấp Độ (Level Badges) -->
+        <nav class="nav-container">
+            <button id="btn-level1" class="level-badge px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm" onclick="switchTopic('level1')">
+                <i class="fa-solid fa-scale-balanced mr-2"></i> Cấp độ 1: So Sánh
+            </button>
+            <button id="btn-level2" class="level-badge inactive px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm" onclick="switchTopic('level2')">
+                <i class="fa-solid fa-spell-check mr-2"></i> Cấp độ 2: Từ Vựng
+            </button>
+            <button id="btn-level4" class="level-badge px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm" onclick="switchTopic('level4')">
+                <i class="fa-solid fa-link mr-2"></i> Cấp độ 4: Liên Từ
+            </button>
+        </nav>
+
+        <main>
+            <!-- Phần Lý Thuyết Ngữ Pháp Flashcards -->
+            <section id="theory-section" class="hidden mb-10">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">Thẻ Ghi Nhớ Ngữ Pháp</h2>
+                    <i class="fa-solid fa-layer-group text-blue-500 text-2xl"></i>
+                </div>
+                <p class="text-center text-slate-500 mb-8 font-medium">Nhấn vào thẻ để lật xem cấu trúc và ví dụ</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="flashcards-container">
+                    <!-- Flashcards lý thuyết ngữ pháp -->
+                </div>
+            </section>
+
+            <section id="quizAndNotesCombined" class="tab-content active flex flex-col lg:flex-row gap-6">
+                <!-- Navigator & Vocab Sidebar Column -->
+                <div class="w-full lg:w-1/4 order-2 lg:order-1">
+                    <div class="sticky top-6 flex flex-col gap-6">
+                        <!-- Box Điều Hướng -->
+                        <div class="glass-card mb-0">
+                            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fa-solid fa-map-location-dot mr-2 text-blue-500"></i> Điều Hướng</h2>
+                            <div id="question-navigator" class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-4 xl:grid-cols-5 gap-2 max-h-[30vh] overflow-y-auto pr-1 custom-scrollbar"></div>
+                        </div>
+
+                        <!-- Box Flashcard Từ Vựng (Mới) -->
+                        <div class="glass-card mb-0 hidden" id="vocab-sidebar">
+                            <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fa-solid fa-language text-amber-500 mr-2"></i> Từ Vựng Ôn Tập</h2>
+                            <p class="text-xs text-slate-500 font-medium mb-3 italic">Di chuột (hoặc chạm) vào thẻ để xem nghĩa.</p>
+                            <div id="sidebar-flashcards" class="flex flex-col gap-3 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar pb-2">
+                                <!-- Mini flashcards từ vựng sẽ hiển thị tại đây -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Column -->
+                <div class="w-full lg:w-2/4 order-1 lg:order-2">
+                    <div class="glass-card">
+                        <div id="general-message-box" class="message-box hidden text-sm font-semibold mb-4 mx-auto w-full rounded-lg"></div>
+                        
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                            <h2 id="quiz-title" class="text-xl font-bold text-slate-800"><i class="fa-solid fa-pen-to-square mr-2 text-blue-500"></i> Bài Tập Thực Hành</h2>
+                            <span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded-full">Câu <span id="current-question">1</span>/<span id="total-questions-quiz">0</span></span>
+                        </div>
+
+                        <div class="min-h-[120px] flex items-center justify-center mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                            <p class="text-xl md:text-2xl font-semibold text-slate-700 text-center leading-relaxed" id="quiz-question"></p>
+                        </div>
+
+                        <div id="quiz-options" class="grid grid-cols-1 gap-3"></div>
+                        
+                        <div id="quiz-feedback" class="mt-2">
+                            <div id="result-message" class="result-message hidden shadow-sm"></div>
+                            <p id="explanation-text" class="text-slate-600 mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200 text-sm font-medium hidden leading-relaxed"></p>
+                            <p id="hint-text" class="hint-text hidden shadow-sm text-sm"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i></p>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-slate-100 gap-3 flex-wrap">
+                            <div class="flex gap-2">
+                                <button id="prev-quiz-btn" class="btn-custom bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 px-4 rounded-lg hidden"><i class="fa-solid fa-arrow-left mr-2"></i> Trước</button>
+                                <button id="hint-btn" class="btn-custom bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-300 py-2.5 px-4 rounded-lg"><i class="fa-solid fa-lightbulb mr-2"></i> Gợi Ý</button>
+                            </div>
+                            
+                            <div class="flex gap-2 ml-auto">
+                                <button id="submit-answer-btn" class="btn-custom bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2.5 px-8 rounded-lg shadow-md">Kiểm Tra</button>
+                                <button id="next-quiz-btn" class="btn-custom bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 px-6 rounded-lg shadow-md hidden">Tiếp <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                                <button id="reset-quiz-btn" class="btn-custom bg-gradient-to-r from-red-500 to-rose-600 text-white py-2.5 px-6 rounded-lg shadow-md hidden"><i class="fa-solid fa-rotate-right mr-2"></i> Làm Lại</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 text-center">
+                            <div class="inline-block bg-white border-2 border-blue-100 px-6 py-2 rounded-full shadow-sm">
+                                <span class="text-slate-500 font-bold uppercase tracking-wider text-xs mr-2">Điểm Số</span>
+                                <span class="text-2xl font-extrabold text-blue-600" id="quiz-score">0</span>
+                                <span class="text-lg font-bold text-slate-400">/ <span id="quiz-total-questions-score">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Column -->
+                <div class="w-full lg:w-1/4 order-3">
+                    <div class="glass-card">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2"><i class="fa-solid fa-book-bookmark mr-2 text-blue-500"></i> Ghi Chú</h2>
+                        <textarea id="noteTextarea" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-colors h-40 resize-y text-sm font-medium text-slate-700" placeholder="Viết nháp hoặc ghi chú cá nhân tại đây..."></textarea>
+                        
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <button id="saveNoteBtn" class="btn-custom bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i> Lưu</button>
+                            <button id="exportNoteBtn" class="btn-custom bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg text-sm"><i class="fa-solid fa-file-word mr-2"></i> Xuất Word</button>
+                        </div>
+                        
+                        <div class="mt-6 border-t pt-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-sm font-bold text-slate-600 uppercase tracking-wider">Công cụ</h3>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button id="export-results-btn" class="btn-custom bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 py-2 px-4 rounded-lg text-sm w-full"><i class="fa-solid fa-download mr-2"></i> Xuất Kết Quả Bài Làm</button>
+                                <button id="clear-progress-btn" class="btn-custom bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-2 px-4 rounded-lg text-sm w-full" title="Xóa toàn bộ kết quả đã làm"><i class="fa-solid fa-trash-can mr-2"></i> Xóa Điểm & Làm Lại</button>
+                            </div>
+                        </div>
+
+                        <div id="savedNotes" class="mt-6 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                            <h3 class="text-sm font-bold text-slate-700 bg-slate-100 py-2 px-4 border-b border-slate-200"><i class="fa-solid fa-list mr-2"></i> Đã Lưu</h3>
+                            <ul id="noteList" class="max-h-48 overflow-y-auto p-2">
+                                <li class="text-slate-400 text-sm text-center py-4 italic">Chưa có ghi chú.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center text-slate-400 font-semibold text-sm mt-12 pb-6">
+            <p>Hệ Thống Luyện Tập Ngữ Pháp & Từ Vựng Tiếng Anh</p>
+            <p class="mt-1 opacity-75">Sử dụng cho mục đích học tập.</p>
+        </footer>
+    </div>
+
+    <script>
+        const allTopics = {
+            level1: {
+                name: "Cấp độ 1 - Câu So Sánh",
+                theory: [
+                    {
+                        frontTitle: "So Sánh Hơn<br>(Comparative)",
+                        frontDesc: "Dùng để so sánh 2 người, 2 vật.",
+                        backContent: "<strong>• Tính từ Ngắn (1 âm tiết):</strong><br>S + V + Adj<span class='text-blue-600'>-er</span> + <span class='text-red-500'>than</span> + N.<br><em>VD: He is <strong>taller than</strong> me.</em><br><br><strong>• Tính từ Dài (2 âm tiết trở lên):</strong><br>S + V + <span class='text-blue-600'>more</span> + Adj + <span class='text-red-500'>than</span> + N.<br><em>VD: This is <strong>more expensive than</strong> that.</em>"
+                    },
+                    {
+                        frontTitle: "So Sánh Nhất<br>(Superlative)",
+                        frontDesc: "Dùng để so sánh 3 đối tượng trở lên.",
+                        backContent: "<strong>• Tính từ Ngắn:</strong><br>S + V + <span class='text-red-500'>the</span> + Adj<span class='text-blue-600'>-est</span>.<br><em>VD: She is <strong>the tallest</strong> in the class.</em><br><br><strong>• Tính từ Dài:</strong><br>S + V + <span class='text-red-500'>the most</span> + Adj.<br><em>VD: It's <strong>the most beautiful</strong> dress.</em>"
+                    },
+                    {
+                        frontTitle: "So Sánh Bằng & Bất Quy Tắc",
+                        frontDesc: "as...as và các từ đặc biệt.",
+                        backContent: "<strong>• So Sánh Bằng:</strong><br>S + V + <span class='text-blue-600'>as</span> + Adj + <span class='text-blue-600'>as</span> + N.<br><em>VD: I am <strong>as tall as</strong> you.</em><br><br><strong>• Bất Quy Tắc (Hơn / Nhất):</strong><br>- good / well ➔ better ➔ best<br>- bad / badly ➔ worse ➔ worst<br>- far ➔ farther ➔ farthest"
+                    }
+                ],
+                vocabList: [
+                    { front: "tall", back: "cao" },
+                    { front: "short", back: "thấp, ngắn" },
+                    { front: "beautiful", back: "xinh đẹp" },
+                    { front: "thick", back: "dày" },
+                    { front: "thin", back: "gầy, mỏng" },
+                    { front: "expensive", back: "đắt đỏ" },
+                    { front: "hot", back: "nóng" },
+                    { front: "cold", back: "lạnh" },
+                    { front: "warm", back: "ấm áp" },
+                    { front: "good / better", back: "tốt / tốt hơn" },
+                    { front: "bad / worse", back: "tệ / tệ hơn" },
+                    { front: "heavy", back: "nặng" },
+                    { front: "large", back: "rộng lớn" },
+                    { front: "big", back: "to lớn" },
+                    { front: "smart", back: "thông minh" },
+                    { front: "wise", back: "khôn ngoan" },
+                    { front: "friendly", back: "thân thiện" },
+                    { front: "important", back: "quan trọng" },
+                    { front: "fast", back: "nhanh" },
+                    { front: "slow", back: "chậm" },
+                    { front: "easy", back: "dễ dàng" },
+                    { front: "difficult", back: "khó khăn" },
+                    { front: "hard", back: "khó, chăm chỉ, cứng" },
+                    { front: "high", back: "cao (vật)" },
+                    { front: "old", back: "già, cũ" },
+                    { front: "happy", back: "hạnh phúc" },
+                    { front: "valuable", back: "có giá trị" },
+                    { front: "simple", back: "đơn giản" },
+                    { front: "funny", back: "hài hước" },
+                    { front: "modern", back: "hiện đại" },
+                    { front: "strong", back: "mạnh mẽ" },
+                    { front: "long", back: "dài" },
+                    { front: "quiet", back: "yên tĩnh" },
+                    { front: "rich", back: "giàu có" },
+                    { front: "busy", back: "bận rộn" },
+                    { front: "healthy", back: "khỏe mạnh" }
+                ],
+                questions: [
+                    { question: "1. My brother is ___________ than me.", options: ["A. tall", "B. taller", "C. the tallest", "D. tallest"], answer: "B", explanation: "Đáp án B. So sánh hơn với tính từ ngắn 'tall' thêm đuôi '-er'. Dấu hiệu là từ 'than'.", hint: "Có từ 'than' nên ta dùng so sánh hơn. 'tall' là tính từ ngắn." },
+                    { question: "2. She is the ___________ girl in our class.", options: ["A. beautiful", "B. more beautiful", "C. most beautiful", "D. beautifulest"], answer: "C", explanation: "Đáp án C. So sánh nhất với tính từ dài 'beautiful' dùng 'the most + adj'.", hint: "Có mạo từ 'the' phía trước và 'in our class' chỉ phạm vi, ta dùng so sánh nhất." },
+                    { question: "3. This book is ___________ than that one.", options: ["A. thicker", "B. thick", "C. the thickest", "D. more thick"], answer: "A", explanation: "Đáp án A. 'thick' là tính từ ngắn, so sánh hơn là 'thicker'.", hint: "Tính từ ngắn 'thick' khi so sánh hơn sẽ thêm đuôi gì?" },
+                    { question: "4. A car is ___________ than a bicycle.", options: ["A. expensive", "B. expensiver", "C. more expensive", "D. the most expensive"], answer: "C", explanation: "Đáp án C. So sánh hơn với tính từ dài 'expensive' dùng 'more + adj'.", hint: "Tính từ dài (3 âm tiết) khi so sánh hơn phải dùng từ 'more'." },
+                    { question: "5. Today is ___________ than yesterday.", options: ["A. hot", "B. hotter", "C. hottest", "D. more hot"], answer: "B", explanation: "Đáp án B. Tính từ ngắn tận cùng 1 phụ âm trước là 1 nguyên âm thì gấp đôi phụ âm rồi thêm '-er'.", hint: "Tính từ 'hot' là tính từ ngắn đặc biệt, nhớ gấp đôi chữ 't'." },
+                    { question: "6. I am not as ___________ as my sister.", options: ["A. short", "B. shorter", "C. the shortest", "D. more short"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng/không bằng: 'as + adj + as'. Tính từ giữ nguyên.", hint: "Giữa 'as ... as' luôn là tính từ ở dạng nguyên thể (không thêm -er hay more)." },
+                    { question: "7. He plays football ___________ than his friend.", options: ["A. better", "B. good", "C. more good", "D. best"], answer: "A", explanation: "Đáp án A. So sánh hơn của từ bất quy tắc 'good' / 'well' là 'better'.", hint: "'good' là từ bất quy tắc, so sánh hơn của nó không thêm -er." },
+                    { question: "8. This is the ___________ movie I have ever seen.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "C", explanation: "Đáp án C. So sánh nhất của từ bất quy tắc 'bad' là 'worst'.", hint: "Có mạo từ 'the' nên dùng so sánh nhất. 'bad' là từ bất quy tắc." },
+                    { question: "9. My bag is ___________ than yours.", options: ["A. heavy", "B. heavier", "C. more heavy", "D. heaviest"], answer: "B", explanation: "Đáp án B. Tính từ tận cùng bằng 'y' thì đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Đổi 'y' thành 'i' rồi mới thêm '-er'." },
+                    { question: "10. Russia is the ___________ country in the world.", options: ["A. large", "B. larger", "C. largest", "D. most large"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'large' thêm '-st'.", hint: "Tính từ ngắn kết thúc bằng 'e', khi so sánh nhất chỉ cần thêm '-st'." },
+                    { question: "11. Peter is ___________ student in the school.", options: ["A. smart", "B. smarter", "C. the smartest", "D. most smart"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'smart' thêm '-est' và phải có 'the'.", hint: "Nói về 1 người giỏi nhất trong trường (phạm vi lớn), ta dùng so sánh nhất." },
+                    { question: "12. Dogs are ___________ than cats.", options: ["A. friendly", "B. friendlier", "C. more friendly", "D. friendliest"], answer: "B", explanation: "Đáp án B. Tính từ 2 âm tiết kết thúc bằng 'y' được coi là tính từ ngắn, đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Từ 'friendly' kết thúc bằng 'y' nên áp dụng quy tắc như tính từ ngắn." },
+                    { question: "13. English is ___________ as math.", options: ["A. as important", "B. more important", "C. important", "D. the most important"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng 'as + adj + as'. Ở đây phía sau đã có 'as' nên phía trước cần 'as important'.", hint: "Nhìn phía sau có từ 'as', đây là cấu trúc so sánh bằng." },
+                    { question: "14. She runs ___________ than me.", options: ["A. fast", "B. faster", "C. more fast", "D. fastest"], answer: "B", explanation: "Đáp án B. Trạng từ ngắn 'fast' có so sánh hơn là 'faster'.", hint: "'fast' vừa là tính từ vừa là trạng từ ngắn. So sánh hơn cứ thêm '-er'." },
+                    { question: "15. This puzzle is ___________ than the old one.", options: ["A. easy", "B. easier", "C. more easy", "D. easiest"], answer: "B", explanation: "Đáp án B. Tính từ ngắn kết thúc bằng 'y' thì đổi 'y' thành 'i' rồi thêm '-er'.", hint: "Đuôi 'y' đổi thành 'i' và thêm '-er'." },
+                    { question: "16. Mount Everest is the ___________ mountain in the world.", options: ["A. high", "B. higher", "C. highest", "D. most high"], answer: "C", explanation: "Đáp án C. So sánh nhất của tính từ ngắn 'high' là 'highest'.", hint: "Núi cao nhất thế giới, phải dùng so sánh nhất." },
+                    { question: "17. Winter is ___________ than summer.", options: ["A. cold", "B. colder", "C. coldest", "D. more cold"], answer: "B", explanation: "Đáp án B. So sánh hơn của tính từ ngắn 'cold' là 'colder'.", hint: "Có từ 'than', tính từ ngắn thêm '-er'." },
+                    { question: "18. Who is the ___________ person in your family?", options: ["A. old", "B. older", "C. oldest", "D. more old"], answer: "C", explanation: "Đáp án C. So sánh nhất 'the oldest'.", hint: "Có từ 'the' phía trước chỗ trống." },
+                    { question: "19. The test was ___________ than I thought.", options: ["A. difficult", "B. more difficult", "C. most difficult", "D. the most difficult"], answer: "B", explanation: "Đáp án B. So sánh hơn của tính từ dài 'difficult' là 'more difficult'.", hint: "Có từ 'than', 'difficult' là tính từ dài." },
+                    { question: "20. I feel ___________ today than yesterday.", options: ["A. happy", "B. happier", "C. happiest", "D. more happy"], answer: "B", explanation: "Đáp án B. Đổi 'y' thành 'i' rồi thêm '-er'.", hint: "So sánh hơn, từ 'happy' kết thúc bằng 'y'." },
+                    { question: "21. A cheetah is ___________ than a tiger.", options: ["A. fast", "B. faster", "C. the fastest", "D. fastest"], answer: "B", explanation: "Đáp án B. So sánh hơn với 'fast' (tính từ ngắn).", hint: "Có 'than' nên ta dùng so sánh hơn." },
+                    { question: "22. The blue whale is the ___________ animal on Earth.", options: ["A. large", "B. larger", "C. largest", "D. most large"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'large' là 'largest'.", hint: "Có mạo từ 'the', đây là cấu trúc so sánh nhất." },
+                    { question: "23. Gold is ___________ than silver.", options: ["A. valuable", "B. valuabler", "C. more valuable", "D. most valuable"], answer: "C", explanation: "Đáp án C. 'valuable' là tính từ dài, so sánh hơn dùng 'more'.", hint: "'valuable' (có giá trị) là tính từ dài." },
+                    { question: "24. My grandfather is the ___________ person I know.", options: ["A. wise", "B. wiser", "C. wisest", "D. most wise"], answer: "C", explanation: "Đáp án C. 'wise' (thông thái) là tính từ ngắn, so sánh nhất thêm '-st'.", hint: "Có 'the', dùng so sánh nhất." },
+                    { question: "25. This exercise is as ___________ as the last one.", options: ["A. simple", "B. simpler", "C. simplest", "D. more simple"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng: as + adj nguyên thể + as.", hint: "Giữa 'as ... as' luôn giữ nguyên tính từ." },
+                    { question: "26. Summer is usually ___________ than spring.", options: ["A. warm", "B. warmer", "C. warmest", "D. more warm"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'warm' (tính từ ngắn).", hint: "Có từ 'than'." },
+                    { question: "27. That was the ___________ joke I have ever heard.", options: ["A. funny", "B. funnier", "C. funniest", "D. most funny"], answer: "C", explanation: "Đáp án C. 'funny' đổi 'y' thành 'i' rồi thêm '-est' trong so sánh nhất.", hint: "Có 'the' và từ tận cùng bằng 'y'." },
+                    { question: "28. A turtle is ___________ than a rabbit.", options: ["A. slow", "B. slower", "C. slowest", "D. more slow"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'slow'.", hint: "Con rùa chậm hơn con thỏ, dùng so sánh hơn." },
+                    { question: "29. His car is ___________ than my car.", options: ["A. modern", "B. moderner", "C. more modern", "D. most modern"], answer: "C", explanation: "Đáp án C. 'modern' là tính từ dài.", hint: "'modern' có 2 âm tiết nhưng là tính từ dài." },
+                    { question: "30. She is the ___________ singer I know.", options: ["A. bad", "B. worse", "C. worst", "D. baddest"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'bad'.", hint: "So sánh nhất của từ bất quy tắc 'bad'." },
+                    { question: "31. This is ___________ lesson in the book.", options: ["A. the hard", "B. harder", "C. the hardest", "D. most hard"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'hard'.", hint: "Bài học khó nhất." },
+                    { question: "32. The test is not as ___________ as I expected.", options: ["A. difficult", "B. more difficult", "C. most difficult", "D. difficultest"], answer: "A", explanation: "Đáp án A. Cấu trúc so sánh bằng phủ định (not as ... as), tính từ giữ nguyên.", hint: "Giữa 'as ... as' luôn dùng từ gốc." },
+                    { question: "33. Elephants are ___________ than lions.", options: ["A. strong", "B. stronger", "C. strongest", "D. more strong"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'strong'.", hint: "Voi khỏe hơn sư tử." },
+                    { question: "34. What is the ___________ river in your country?", options: ["A. long", "B. longer", "C. longest", "D. most long"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'long'.", hint: "Sông dài nhất, có mạo từ 'the'." },
+                    { question: "35. A motorbike is ___________ than a bicycle.", options: ["A. fast", "B. faster", "C. fastest", "D. more fast"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'fast'.", hint: "So sánh hơn, tính từ ngắn." },
+                    { question: "36. That was the ___________ moment of my life.", options: ["A. happy", "B. happier", "C. happiest", "D. most happy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'happy' (đổi y thành i thêm est).", hint: "Khoảnh khắc hạnh phúc nhất." },
+                    { question: "37. The countryside is ___________ than the city.", options: ["A. quiet", "B. quieter", "C. quietest", "D. more quiet"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'quiet'.", hint: "Nông thôn yên tĩnh hơn." },
+                    { question: "38. He is the ___________ man in the village.", options: ["A. rich", "B. richer", "C. richest", "D. most rich"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'rich'.", hint: "Người đàn ông giàu nhất." },
+                    { question: "39. Health is ___________ than money.", options: ["A. important", "B. importanter", "C. more important", "D. most important"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'important'.", hint: "Sức khỏe quan trọng hơn tiền bạc." },
+                    { question: "40. This is the ___________ building in the city.", options: ["A. high", "B. higher", "C. highest", "D. most high"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'high'.", hint: "Tòa nhà cao nhất." },
+                    { question: "41. My homework is ___________ than yours.", options: ["A. easy", "B. easier", "C. easiest", "D. more easy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'easy' (tận cùng y đổi thành i).", hint: "Bài tập của tôi dễ hơn." },
+                    { question: "42. Sarah is ___________ than her sister.", options: ["A. thin", "B. thinner", "C. thinnest", "D. more thin"], answer: "B", explanation: "Đáp án B. Gấp đôi phụ âm 'n' rồi thêm '-er'.", hint: "Tính từ 'thin' cần gấp đôi phụ âm cuối." },
+                    { question: "43. The snail is the ___________ animal.", options: ["A. slow", "B. slower", "C. slowest", "D. most slow"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'slow'.", hint: "Động vật chậm nhất." },
+                    { question: "44. Traveling by plane is ___________ than traveling by train.", options: ["A. fast", "B. faster", "C. fastest", "D. more fast"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'fast'.", hint: "Máy bay nhanh hơn tàu hỏa." },
+                    { question: "45. Jupiter is the ___________ planet in our solar system.", options: ["A. big", "B. bigger", "C. biggest", "D. most big"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'big' (gấp đôi g).", hint: "Hành tinh lớn nhất." },
+                    { question: "46. Her dress is ___________ than my dress.", options: ["A. beautiful", "B. beautifuller", "C. more beautiful", "D. most beautiful"], answer: "C", explanation: "Đáp án C. So sánh hơn của tính từ dài 'beautiful'.", hint: "Chiếc váy đẹp hơn." },
+                    { question: "47. Today is the ___________ day of the week.", options: ["A. busy", "B. busier", "C. busiest", "D. most busy"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'busy'.", hint: "Ngày bận rộn nhất." },
+                    { question: "48. Water is ___________ than juice.", options: ["A. healthy", "B. healthier", "C. healthiest", "D. more healthy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'healthy' (kết thúc bằng y).", hint: "Nước tốt cho sức khỏe hơn." },
+                    { question: "49. He works as ___________ as a bee.", options: ["A. hard", "B. harder", "C. hardest", "D. more hard"], answer: "A", explanation: "Đáp án A. Giữa 'as ... as' dùng tính từ gốc.", hint: "Làm việc chăm chỉ như ong." },
+                    { question: "50. This problem is ___________ than the previous one.", options: ["A. simple", "B. simpler", "C. simplest", "D. more simple"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'simple'.", hint: "Vấn đề này đơn giản hơn." },
+                    { question: "51. Who is the ___________ student in your class?", options: ["A. smart", "B. smarter", "C. smartest", "D. most smart"], answer: "C", explanation: "Đáp án C. So sánh nhất của 'smart'.", hint: "Học sinh thông minh nhất." },
+                    { question: "52. My bag is ___________ than your bag.", options: ["A. heavy", "B. heavier", "C. heaviest", "D. more heavy"], answer: "B", explanation: "Đáp án B. So sánh hơn của 'heavy'.", hint: "Cặp của tôi nặng hơn." }
+                ]
+            },
+            level2: {
+                name: "Cấp độ 2 - Từ Vựng Tính Từ",
+                theory: null,
+                questions: [
+                    { question: "1. Chọn nghĩa tiếng Việt đúng cho từ: <strong>tall</strong>", options: ["A. Thấp", "B. Cao", "C. To lớn", "D. Nhỏ bé"], answer: "B", explanation: "Đáp án B. 'tall' có nghĩa là cao.", hint: "Dùng để chỉ chiều cao của người hoặc vật/tòa nhà." },
+                    { question: "2. Chọn nghĩa tiếng Việt đúng cho từ: <strong>beautiful</strong>", options: ["A. Tuyệt vời", "B. Xinh đẹp", "C. Xấu xí", "D. Mạnh mẽ"], answer: "B", explanation: "Đáp án B. 'beautiful' có nghĩa là xinh đẹp.", hint: "Dùng để khen ngợi nhan sắc hoặc cảnh quan." },
+                    { question: "3. Chọn nghĩa tiếng Việt đúng cho từ: <strong>thick</strong>", options: ["A. Rộng", "B. Sâu", "C. Dày", "D. Mỏng"], answer: "C", explanation: "Đáp án C. 'thick' có nghĩa là dày.", hint: "Trái nghĩa với 'thin' (mỏng)." },
+                    { question: "4. Chọn nghĩa tiếng Việt đúng cho từ: <strong>expensive</strong>", options: ["A. Xấu xí", "B. Xinh đẹp", "C. Rẻ tiền", "D. Đắt đỏ"], answer: "D", explanation: "Đáp án D. 'expensive' mang nghĩa là đắt tiền, đắt đỏ.", hint: "Phải tốn rất nhiều tiền mới mua được." },
+                    { question: "5. Chọn nghĩa tiếng Việt đúng cho từ: <strong>hot</strong>", options: ["A. Lạnh", "B. Mát mẻ", "C. Nóng", "D. Ấm áp"], answer: "C", explanation: "Đáp án C. 'hot' có nghĩa là nóng.", hint: "Thời tiết mùa hè thường như thế này." },
+                    { question: "6. Chọn nghĩa tiếng Việt đúng cho từ: <strong>short</strong>", options: ["A. To lớn", "B. Cao", "C. Thấp, ngắn", "D. Xinh đẹp"], answer: "C", explanation: "Đáp án C. 'short' có nghĩa là thấp (chỉ người) hoặc ngắn (chỉ vật).", hint: "Trái nghĩa với 'tall' hoặc 'long'." },
+                    { question: "7. Chọn nghĩa tiếng Việt đúng cho từ: <strong>good</strong>", options: ["A. Tốt", "B. Xấu", "C. Đẹp", "D. Giỏi"], answer: "A", explanation: "Đáp án A. 'good' có nghĩa là tốt.", hint: "Trái nghĩa với 'bad'." },
+                    { question: "8. Chọn nghĩa tiếng Việt đúng cho từ: <strong>bad</strong>", options: ["A. Tốt", "B. Tuyệt vời", "C. Tệ, xấu", "D. Rẻ"], answer: "C", explanation: "Đáp án C. 'bad' có nghĩa là tệ, xấu.", hint: "Trái nghĩa với 'good'." },
+                    { question: "9. Chọn nghĩa tiếng Việt đúng cho từ: <strong>heavy</strong>", options: ["A. Nhẹ", "B. Nặng", "C. Mỏng", "D. Dày"], answer: "B", explanation: "Đáp án B. 'heavy' có nghĩa là nặng, nặng nề.", hint: "Trái nghĩa với 'light' (nhẹ)." },
+                    { question: "10. Chọn nghĩa tiếng Việt đúng cho từ: <strong>large</strong>", options: ["A. Nhỏ bé", "B. Rộng lớn", "C. Dài", "D. Sâu"], answer: "B", explanation: "Đáp án B. 'large' có nghĩa là rộng lớn.", hint: "Đồng nghĩa với 'big'." },
+                    { question: "11. Chọn nghĩa tiếng Việt đúng cho từ: <strong>smart</strong>", options: ["A. Ngốc nghếch", "B. Thông minh", "C. Vụng về", "D. Chậm chạp"], answer: "B", explanation: "Đáp án B. 'smart' có nghĩa là thông minh.", hint: "Đồng nghĩa với 'intelligent'." },
+                    { question: "12. Chọn nghĩa tiếng Việt đúng cho từ: <strong>friendly</strong>", options: ["A. Thân thiện", "B. Cáu kỉnh", "C. Lạnh lùng", "D. Nhút nhát"], answer: "A", explanation: "Đáp án A. 'friendly' có nghĩa là thân thiện.", hint: "Cách cư xử giống như một người bạn (friend)." },
+                    { question: "13. Chọn nghĩa tiếng Việt đúng cho từ: <strong>important</strong>", options: ["A. Vô dụng", "B. Có ích", "C. Cần thiết", "D. Quan trọng"], answer: "D", explanation: "Đáp án D. 'important' có nghĩa là quan trọng.", hint: "Một thứ gì đó không thể thiếu hoặc có ảnh hưởng lớn." },
+                    { question: "14. Chọn nghĩa tiếng Việt đúng cho từ: <strong>fast</strong>", options: ["A. Đều đặn", "B. Dừng lại", "C. Nhanh", "D. Chậm"], answer: "C", explanation: "Đáp án C. 'fast' có nghĩa là nhanh.", hint: "Tốc độ di chuyển lớn." },
+                    { question: "15. Chọn nghĩa tiếng Việt đúng cho từ: <strong>easy</strong>", options: ["A. Khó khăn", "B. Dễ dàng", "C. Phức tạp", "D. Tốn kém"], answer: "B", explanation: "Đáp án B. 'easy' có nghĩa là dễ dàng.", hint: "Không mất nhiều công sức để hoàn thành." },
+                    { question: "16. Chọn nghĩa tiếng Việt đúng cho từ: <strong>high</strong>", options: ["A. Cao (địa hình, vị trí)", "B. Sâu", "C. Rộng", "D. Dài"], answer: "A", explanation: "Đáp án A. 'high' có nghĩa là cao (thường dùng cho vật, núi, tòa nhà).", hint: "Trái nghĩa với 'low' (thấp)." },
+                    { question: "17. Chọn nghĩa tiếng Việt đúng cho từ: <strong>cold</strong>", options: ["A. Lạnh", "B. Nóng", "C. Ôn hòa", "D. Khô hanh"], answer: "A", explanation: "Đáp án A. 'cold' có nghĩa là lạnh.", hint: "Trái nghĩa với 'hot'." },
+                    { question: "18. Chọn nghĩa tiếng Việt đúng cho từ: <strong>old</strong>", options: ["A. Trẻ trung", "B. Mới mẻ", "C. Hiện đại", "D. Già, cũ"], answer: "D", explanation: "Đáp án D. 'old' có nghĩa là già (người) hoặc cũ (vật).", hint: "Trái nghĩa với 'young' hoặc 'new'." },
+                    { question: "19. Chọn nghĩa tiếng Việt đúng cho từ: <strong>difficult</strong>", options: ["A. Khó khăn", "B. Dễ dàng", "C. Đơn giản", "D. Quen thuộc"], answer: "A", explanation: "Đáp án A. 'difficult' có nghĩa là khó khăn.", hint: "Đồng nghĩa với 'hard', trái nghĩa với 'easy'." },
+                    { question: "20. Chọn nghĩa tiếng Việt đúng cho từ: <strong>happy</strong>", options: ["A. Tức giận", "B. Hạnh phúc, vui vẻ", "C. Buồn bã", "D. Lo lắng"], answer: "B", explanation: "Đáp án B. 'happy' có nghĩa là hạnh phúc, vui vẻ.", hint: "Trạng thái cảm xúc khi nhận được tin tốt." },
+                    { question: "21. Chọn nghĩa tiếng Việt đúng cho từ: <strong>valuable</strong>", options: ["A. Rẻ tiền", "B. Có giá trị", "C. Hiện đại", "D. Cũ kỹ"], answer: "B", explanation: "Đáp án B. 'valuable' mang nghĩa là có giá trị cao.", hint: "Từ này bắt nguồn từ chữ 'value' (giá trị)." },
+                    { question: "22. Chọn nghĩa tiếng Việt đúng cho từ: <strong>wise</strong>", options: ["A. Khờ dại", "B. Nhanh nhẹn", "C. Khôn ngoan", "D. Chậm chạp"], answer: "C", explanation: "Đáp án C. 'wise' có nghĩa là khôn ngoan, thông thái.", hint: "Người có nhiều kinh nghiệm sống thường rất..." },
+                    { question: "23. Chọn nghĩa tiếng Việt đúng cho từ: <strong>simple</strong>", options: ["A. Phức tạp", "B. Đơn giản", "C. Cầu kỳ", "D. Khó khăn"], answer: "B", explanation: "Đáp án B. 'simple' có nghĩa là đơn giản.", hint: "Không có nhiều chi tiết rườm rà." },
+                    { question: "24. Chọn nghĩa tiếng Việt đúng cho từ: <strong>warm</strong>", options: ["A. Mát mẻ", "B. Ấm áp", "C. Lạnh lẽo", "D. Nóng bức"], answer: "B", explanation: "Đáp án B. 'warm' có nghĩa là ấm áp.", hint: "Nhiệt độ dễ chịu, không quá nóng cũng không lạnh." },
+                    { question: "25. Chọn nghĩa tiếng Việt đúng cho từ: <strong>funny</strong>", options: ["A. Hài hước", "B. Đáng sợ", "C. Nhàm chán", "D. Buồn tẻ"], answer: "A", explanation: "Đáp án A. 'funny' có nghĩa là hài hước, buồn cười.", hint: "Làm cho người khác phải bật cười." },
+                    { question: "26. Chọn nghĩa tiếng Việt đúng cho từ: <strong>slow</strong>", options: ["A. Nhanh", "B. Vội vã", "C. Chậm", "D. Gấp gáp"], answer: "C", explanation: "Đáp án C. 'slow' có nghĩa là chậm chạp.", hint: "Trái nghĩa với 'fast'." },
+                    { question: "27. Chọn nghĩa tiếng Việt đúng cho từ: <strong>modern</strong>", options: ["A. Hiện đại", "B. Cổ điển", "C. Rộng lớn", "D. Chật hẹp"], answer: "A", explanation: "Đáp án A. 'modern' có nghĩa là hiện đại.", hint: "Cùng nghĩa với từ 'new', 'contemporary'." },
+                    { question: "28. Chọn nghĩa tiếng Việt đúng cho từ: <strong>hard</strong>", options: ["A. Mềm mại", "B. Khó, chăm chỉ, cứng", "C. Dễ dàng", "D. Lười biếng"], answer: "B", explanation: "Đáp án B. 'hard' có nhiều nghĩa: cứng (vật), khó khăn (việc), hoặc chăm chỉ (làm việc).", hint: "Từ này có thể đóng vai trò cả tính từ lẫn trạng từ." },
+                    { question: "29. Chọn nghĩa tiếng Việt đúng cho từ: <strong>strong</strong>", options: ["A. Mạnh mẽ", "B. Yếu đuối", "C. Mềm yếu", "D. Nhỏ bé"], answer: "A", explanation: "Đáp án A. 'strong' có nghĩa là mạnh mẽ, khỏe mạnh.", hint: "Có sức lực lớn." },
+                    { question: "30. Chọn nghĩa tiếng Việt đúng cho từ: <strong>long</strong>", options: ["A. Ngắn", "B. Rộng", "C. Dài", "D. Sâu"], answer: "C", explanation: "Đáp án C. 'long' có nghĩa là dài.", hint: "Trái nghĩa với 'short' (chỉ vật)." },
+                    { question: "31. Chọn nghĩa tiếng Việt đúng cho từ: <strong>quiet</strong>", options: ["A. Ồn ào", "B. Yên tĩnh", "C. Sôi động", "D. Hỗn loạn"], answer: "B", explanation: "Đáp án B. 'quiet' có nghĩa là yên tĩnh.", hint: "Không có hoặc có rất ít tiếng ồn." },
+                    { question: "32. Chọn nghĩa tiếng Việt đúng cho từ: <strong>rich</strong>", options: ["A. Giàu có", "B. Nghèo khổ", "C. Tốt bụng", "D. Độc ác"], answer: "A", explanation: "Đáp án A. 'rich' có nghĩa là giàu có.", hint: "Có rất nhiều tiền bạc và tài sản." },
+                    { question: "33. Chọn nghĩa tiếng Việt đúng cho từ: <strong>thin</strong>", options: ["A. Dày", "B. Mập mạp", "C. Gầy, mỏng", "D. Cao lớn"], answer: "C", explanation: "Đáp án C. 'thin' có nghĩa là gầy (chỉ người) hoặc mỏng (chỉ vật).", hint: "Trái nghĩa với 'thick' (dày) hoặc 'fat' (béo)." },
+                    { question: "34. Chọn nghĩa tiếng Việt đúng cho từ: <strong>big</strong>", options: ["A. Nhỏ bé", "B. To lớn", "C. Ngắn", "D. Dài"], answer: "B", explanation: "Đáp án B. 'big' có nghĩa là to lớn.", hint: "Trái nghĩa với 'small' (nhỏ)." },
+                    { question: "35. Chọn nghĩa tiếng Việt đúng cho từ: <strong>busy</strong>", options: ["A. Rảnh rỗi", "B. Bận rộn", "C. Lười biếng", "D. Chăm chỉ"], answer: "B", explanation: "Đáp án B. 'busy' có nghĩa là bận rộn.", hint: "Có rất nhiều việc phải làm." },
+                    { question: "36. Chọn nghĩa tiếng Việt đúng cho từ: <strong>healthy</strong>", options: ["A. Ốm yếu", "B. Bệnh tật", "C. Mệt mỏi", "D. Khỏe mạnh"], answer: "D", explanation: "Đáp án D. 'healthy' có nghĩa là khỏe mạnh.", hint: "Có một cơ thể tốt, không bị bệnh." },
+                    { question: "37. Chọn nghĩa tiếng Việt đúng cho từ: <strong>clever</strong>", options: ["A. Khôn khéo, lanh lợi", "B. Ngốc nghếch", "C. Chậm chạp", "D. Vụng về"], answer: "A", explanation: "Đáp án A. 'clever' có nghĩa là khôn khéo, lanh lợi.", hint: "Gần giống với thông minh (smart)." },
+                    { question: "38. Chọn nghĩa tiếng Việt đúng cho từ: <strong>clean</strong>", options: ["A. Dơ bẩn", "B. Sạch sẽ", "C. Lộn xộn", "D. Tối tăm"], answer: "B", explanation: "Đáp án B. 'clean' có nghĩa là sạch sẽ.", hint: "Không có bụi bẩn." },
+                    { question: "39. Chọn nghĩa tiếng Việt đúng cho từ: <strong>deep</strong>", options: ["A. Nông", "B. Cạn", "C. Sâu", "D. Dài"], answer: "C", explanation: "Đáp án C. 'deep' có nghĩa là sâu.", hint: "Thường dùng để chỉ mực nước biển hoặc sông." },
+                    { question: "40. Chọn nghĩa tiếng Việt đúng cho từ: <strong>polite</strong>", options: ["A. Lịch sự", "B. Thô lỗ", "C. Nóng nảy", "D. Bất lịch sự"], answer: "A", explanation: "Đáp án A. 'polite' có nghĩa là lịch sự.", hint: "Cách cư xử có chừng mực, tôn trọng người khác." },
+                    { question: "41. Chọn nghĩa tiếng Việt đúng cho từ: <strong>light</strong>", options: ["A. Nặng nề", "B. Nhẹ, sáng", "C. Tối tăm", "D. Dày"], answer: "B", explanation: "Đáp án B. 'light' có nghĩa là nhẹ (trọng lượng) hoặc sáng (ánh sáng).", hint: "Trái nghĩa với 'heavy' hoặc 'dark'." },
+                    { question: "42. Chọn nghĩa tiếng Việt đúng cho từ: <strong>ugly</strong>", options: ["A. Xinh đẹp", "B. Dễ thương", "C. Lộng lẫy", "D. Xấu xí"], answer: "D", explanation: "Đáp án D. 'ugly' có nghĩa là xấu xí.", hint: "Trái nghĩa với 'beautiful'." },
+                    { question: "43. Chọn nghĩa tiếng Việt đúng cho từ: <strong>dark</strong>", options: ["A. Sáng sủa", "B. Chói lóa", "C. Tối tăm", "D. Rực rỡ"], answer: "C", explanation: "Đáp án C. 'dark' có nghĩa là tối tăm.", hint: "Không có ánh sáng." },
+                    { question: "44. Chọn nghĩa tiếng Việt đúng cho từ: <strong>brave</strong>", options: ["A. Dũng cảm", "B. Nhát gan", "C. Sợ hãi", "D. Yếu đuối"], answer: "A", explanation: "Đáp án A. 'brave' có nghĩa là dũng cảm.", hint: "Không sợ đối mặt với nguy hiểm." },
+                    { question: "45. Chọn nghĩa tiếng Việt đúng cho từ: <strong>bright</strong>", options: ["A. Tối tăm", "B. Sáng chói, tươi sáng", "C. Mờ mịt", "D. U ám"], answer: "B", explanation: "Đáp án B. 'bright' có nghĩa là sáng chói, hoặc chỉ một người sáng dạ.", hint: "Có nhiều ánh sáng, rực rỡ." },
+                    { question: "46. Chọn nghĩa tiếng Việt đúng cho từ: <strong>cheap</strong>", options: ["A. Đắt đỏ", "B. Tốn kém", "C. Rẻ tiền", "D. Có giá trị"], answer: "C", explanation: "Đáp án C. 'cheap' có nghĩa là rẻ tiền.", hint: "Trái nghĩa với 'expensive'." },
+                    { question: "47. Chọn nghĩa tiếng Việt đúng cho từ: <strong>young</strong>", options: ["A. Trẻ tuổi", "B. Già cả", "C. Trung niên", "D. Trưởng thành"], answer: "A", explanation: "Đáp án A. 'young' có nghĩa là trẻ tuổi.", hint: "Trái nghĩa với 'old' (chỉ người)." },
+                    { question: "48. Chọn nghĩa tiếng Việt đúng cho từ: <strong>useful</strong>", options: ["A. Vô dụng", "B. Hữu ích", "C. Thừa thãi", "D. Độc hại"], answer: "B", explanation: "Đáp án B. 'useful' có nghĩa là có ích, hữu ích.", hint: "Có thể được dùng vào việc gì đó một cách hiệu quả." },
+                    { question: "49. Chọn nghĩa tiếng Việt đúng cho từ: <strong>peaceful</strong>", options: ["A. Ồn ào", "B. Bận rộn", "C. Thanh bình", "D. Đông đúc"], answer: "C", explanation: "Đáp án C. 'peaceful' mang nghĩa là thanh bình, yên tĩnh.", hint: "Từ này bắt nguồn từ chữ 'peace' (hòa bình)." },
+                    { question: "50. Chọn nghĩa tiếng Việt đúng cho từ: <strong>sad</strong>", options: ["A. Hạnh phúc", "B. Hào hứng", "C. Buồn bã", "D. Sợ hãi"], answer: "C", explanation: "Đáp án C. 'sad' có nghĩa là buồn bã.", hint: "Trái nghĩa với 'happy'." },
+                    { question: "51. Chọn nghĩa tiếng Việt đúng cho từ: <strong>careful</strong>", options: ["A. Bất cẩn", "B. Cẩn thận", "C. Vội vàng", "D. Vô tâm"], answer: "B", explanation: "Đáp án B. 'careful' có nghĩa là cẩn thận.", hint: "Chú ý để không mắc sai lầm hoặc gây ra tai nạn." },
+                    { question: "52. Chọn nghĩa tiếng Việt đúng cho từ: <strong>lazy</strong>", options: ["A. Chăm chỉ", "B. Năng động", "C. Siêng năng", "D. Lười biếng"], answer: "D", explanation: "Đáp án D. 'lazy' có nghĩa là lười biếng.", hint: "Không có động lực làm việc hay vận động." }
+                ]
+            },
+            level4: {
+                name: "Cấp độ 4 - Liên Từ (Conjunctions)",
+                theory: [
+                    {
+                        frontTitle: "Nguyên Nhân<br>Because vs So",
+                        frontDesc: "Diễn đạt nguyên nhân và kết quả?",
+                        backContent: "• <span class='text-blue-600 font-bold'>Because</span> + Mệnh đề: Chỉ nguyên nhân (Bởi vì).<br><em>VD: <strong>Because</strong> it rained, we stayed home.</em><br><br>• <span class='text-emerald-600 font-bold'>So</span> + Mệnh đề: Chỉ kết quả (Vì vậy).<br><em>VD: It rained, <strong>so</strong> we stayed home.</em>"
+                    },
+                    {
+                        frontTitle: "Nhượng Bộ<br>Although vs But",
+                        frontDesc: "Diễn đạt sự nhượng bộ, tương phản?",
+                        backContent: "• <span class='text-amber-600 font-bold'>Although</span> + Mệnh đề: Mặc dù.<br><em>VD: <strong>Although</strong> he was tired, he kept working.</em><br><br>• <span class='text-rose-600 font-bold'>But</span> + Mệnh đề: Nhưng.<br><em>VD: He was tired, <strong>but</strong> he kept working.</em>"
+                    },
+                    {
+                        frontTitle: "⚠️ LƯU Ý ĐẶC BIỆT ⚠️",
+                        frontDesc: "Những lỗi sai phổ biến cần tránh!",
+                        backContent: "1. <strong>KHÔNG</strong> dùng <span class='text-amber-600'>Although</span> và <span class='text-rose-600'>But</span> trong cùng một câu!<br><em>(Sai: Although he is rich, but he is sad.)</em><br><br>2. <strong>KHÔNG</strong> dùng <span class='text-blue-600'>Because</span> và <span class='text-emerald-600'>So</span> trong cùng một câu!<br><em>(Sai: Because it rained, so I stayed home.)</em>"
+                    }
+                ],
+                vocabList: [
+                    { front: "Because", back: "Bởi vì (Nguyên nhân)" },
+                    { front: "So", back: "Vì vậy (Kết quả)" },
+                    { front: "Although", back: "Mặc dù (Nhượng bộ)" },
+                    { front: "But", back: "Nhưng (Tương phản)" },
+                    { front: "rain heavily", back: "mưa to" },
+                    { front: "stay at home", back: "ở nhà" },
+                    { front: "extremely tired", back: "cực kỳ mệt" },
+                    { front: "miss the bus", back: "lỡ chuyến xe" },
+                    { front: "traffic is heavy", back: "giao thông ùn tắc" },
+                    { front: "arrive on time", back: "đến đúng giờ" },
+                    { front: "have enough money", back: "có đủ tiền" },
+                    { front: "study hard", back: "học chăm chỉ" },
+                    { front: "fail the exam", back: "trượt kỳ thi" },
+                    { front: "freezing outside", back: "bên ngoài lạnh cóng" },
+                    { front: "responsible", back: "có trách nhiệm" },
+                    { front: "forget the wallet", back: "quên ví" },
+                    { front: "perfectly beautiful", back: "đẹp hoàn hảo" },
+                    { front: "feel sick", back: "cảm thấy ốm" },
+                    { front: "leave early", back: "rời đi sớm" },
+                    { front: "expensive", back: "đắt đỏ" }
+                ],
+                questions: [
+                    { question: "1. It was raining heavily, ___________ we decided to stay at home.", options: ["A. so", "B. because", "C. but", "D. although"], answer: "A", explanation: "Đáp án A. 'So' (vì vậy) nối mệnh đề chỉ kết quả ở phía sau.", hint: "Vế sau chỉ kết quả của việc trời mưa." },
+                    { question: "2. ___________ he was extremely tired, he finished his homework.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' (mặc dù) dùng để chỉ sự nhượng bộ.", hint: "Mặc dù mệt nhưng vẫn làm bài xong (tương phản)." },
+                    { question: "3. She was late for the meeting ___________ she missed the early bus.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' (bởi vì) chỉ nguyên nhân.", hint: "Vế sau giải thích lý do cho việc đến trễ." },
+                    { question: "4. He is very rich, ___________ he is not really happy.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' (nhưng) dùng để chỉ sự đối lập.", hint: "Giàu có >< không hạnh phúc. Cần một từ nối chỉ sự đối lập ở giữa." },
+                    { question: "5. ___________ the traffic was terribly heavy, we arrived on time.", options: ["A. Because", "B. So", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' (mặc dù) chỉ sự nhượng bộ.", hint: "Kẹt xe nhưng vẫn đến đúng giờ -> tương phản." },
+                    { question: "6. I wanted to buy the dress, ___________ I didn't have enough money with me.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' (nhưng) nối 2 vế đối lập.", hint: "Muốn mua >< không có tiền. Dùng từ nối đối lập." },
+                    { question: "7. He didn't study hard, ___________ he failed the final exam.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' (vì vậy) chỉ kết quả.", hint: "Trượt kỳ thi là kết quả của việc không học hành chăm chỉ." },
+                    { question: "8. I love playing football, ___________ my brother prefers playing basketball.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' (nhưng) nối hai ý trái ngược nhau.", hint: "Sở thích của 2 người khác nhau, cần từ nối chỉ sự khác biệt." },
+                    { question: "9. ___________ it is freezing outside, you should wear a heavy coat.", options: ["A. Because", "B. So", "C. Although", "D. But"], answer: "A", explanation: "Đáp án A. 'Because' (bởi vì) chỉ nguyên nhân.", hint: "Trời lạnh là nguyên nhân nên mặc áo khoác." },
+                    { question: "10. She turned on the fan ___________ it was very hot in the living room.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' (bởi vì) chỉ nguyên nhân.", hint: "Việc mở quạt là do nguyên nhân trời nóng." },
+                    { question: "11. ___________ she is young, she is very responsible for her work.", options: ["A. Because", "B. So", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' (mặc dù) chỉ sự nhượng bộ.", hint: "Trẻ tuổi >< nhưng lại rất có trách nhiệm." },
+                    { question: "12. He forgot his wallet at home, ___________ he couldn't pay for the meal.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' (vì vậy) chỉ kết quả.", hint: "Không trả được tiền là hệ quả của việc quên ví." },
+                    { question: "13. They went to the beach ___________ the weather was perfectly beautiful.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' chỉ nguyên nhân dẫn đến hành động đi biển.", hint: "Thời tiết đẹp là lý do để họ đi biển." },
+                    { question: "14. I invited him to the party, ___________ he didn't come.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' (nhưng) nối 2 vế đối lập.", hint: "Đã mời >< không đến." },
+                    { question: "15. ___________ he felt sick, he went to see the doctor immediately.", options: ["A. Because", "B. So", "C. Although", "D. But"], answer: "A", explanation: "Đáp án A. 'Because' chỉ nguyên nhân.", hint: "Bị ốm là nguyên nhân để đi khám bác sĩ." },
+                    { question: "16. The movie was so boring, ___________ we left the cinema early.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ kết quả của bộ phim nhàm chán.", hint: "Bỏ về sớm là kết quả." },
+                    { question: "17. She didn't buy the shoes ___________ they were way too expensive.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' đứng giữa câu để giải thích lý do không mua.", hint: "Quá đắt là nguyên nhân khiến cô ấy không mua." },
+                    { question: "18. ___________ it was late at night, they continued working on the project.", options: ["A. Because", "B. So", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' (mặc dù) chỉ sự đối lập.", hint: "Đã khuya >< vẫn tiếp tục làm việc." },
+                    { question: "19. I am learning English ___________ I want to study abroad in the future.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' dùng để chỉ mục đích/nguyên nhân học tiếng Anh.", hint: "Muốn đi du học là nguyên nhân học." },
+                    { question: "20. He tried his best in the game, ___________ he couldn't win the race.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' nối hai vế diễn tả sự nỗ lực nhưng không đạt kết quả.", hint: "Đã cố gắng hết sức >< không thể chiến thắng." },
+                    { question: "21. He was very hungry, ___________ he ate a big pizza.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ kết quả của việc bị đói (dẫn đến ăn nhiều).", hint: "Việc ăn một cái bánh pizza lớn là kết quả của việc rất đói." },
+                    { question: "22. ___________ it was a holiday, the streets were very crowded.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "B", explanation: "Đáp án B. 'Because' giải thích nguyên nhân đường phố đông đúc.", hint: "Ngày lễ là lý do khiến đường phố đông đúc." },
+                    { question: "23. She likes playing tennis, ___________ her sister likes swimming.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' nối hai sở thích trái ngược nhau của hai chị em.", hint: "Sở thích khác nhau giữa hai người, cần một từ nối thể hiện sự tương phản." },
+                    { question: "24. ___________ he practiced every day, he didn't win the match.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' chỉ sự nhượng bộ (cố gắng nhưng kết quả không như ý).", hint: "Luyện tập mỗi ngày >< không chiến thắng." },
+                    { question: "25. I was late for school ___________ I missed the bus.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' đứng giữa câu giải thích nguyên nhân đi học muộn.", hint: "Lỡ xe buýt là nguyên nhân gây ra việc đi học muộn." },
+                    { question: "26. It was very cold, ___________ he didn't wear a jacket.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' diễn tả sự tương phản (Trời lạnh nhưng lại không mặc áo khoác).", hint: "Trời rất lạnh >< không mặc áo khoác." },
+                    { question: "27. ___________ she was sick, she stayed in bed all day.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "B", explanation: "Đáp án B. 'Because' diễn đạt nguyên nhân phải ở trên giường cả ngày.", hint: "Bị ốm là nguyên nhân." },
+                    { question: "28. We didn't have much money, ___________ we couldn't buy the tickets.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ kết quả của việc không có nhiều tiền.", hint: "Không thể mua vé là kết quả của việc không có tiền." },
+                    { question: "29. ___________ he is very old, he can still run fast.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' chỉ sự nhượng bộ giữa tuổi tác và thể lực.", hint: "Rất già >< vẫn có thể chạy nhanh." },
+                    { question: "30. They were tired, ___________ they went to sleep early.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ hệ quả của việc bị mệt.", hint: "Việc đi ngủ sớm là kết quả của việc bị mệt." },
+                    { question: "31. I bought this book ___________ it looked interesting.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' chỉ lý do quyết định mua sách.", hint: "Cuốn sách trông thú vị là lý do để mua nó." },
+                    { question: "32. She studied very hard, ___________ she passed the exam easily.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ kết quả của quá trình học tập chăm chỉ.", hint: "Vượt qua kỳ thi là kết quả của việc học chăm chỉ." },
+                    { question: "33. ___________ it was raining, they still went for a walk.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' chỉ sự tương phản bất chấp thời tiết.", hint: "Trời mưa >< vẫn đi dạo." },
+                    { question: "34. He wanted to watch a movie, ___________ his TV was broken.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' nối hai vế chỉ sự cản trở ước muốn.", hint: "Muốn xem phim >< tivi lại bị hỏng." },
+                    { question: "35. I drank a lot of water ___________ I was very thirsty.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' chỉ nguyên nhân của việc uống nhiều nước.", hint: "Rất khát là lý do khiến tôi uống nhiều nước." },
+                    { question: "36. ___________ the test was difficult, many students got high marks.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' chỉ sự nhượng bộ, bài khó nhưng điểm vẫn cao.", hint: "Bài kiểm tra khó >< nhiều học sinh điểm cao." },
+                    { question: "37. She woke up late, ___________ she missed the first class.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "A", explanation: "Đáp án A. 'So' chỉ hệ quả của việc thức dậy muộn.", hint: "Lỡ tiết học đầu tiên là hệ quả của việc dậy muộn." },
+                    { question: "38. I wanted to call you, ___________ I lost my phone.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "D", explanation: "Đáp án D. 'But' diễn đạt một lý do cản trở mong muốn.", hint: "Muốn gọi >< lại bị mất điện thoại." },
+                    { question: "39. ___________ he had a lot of work, he helped me with my homework.", options: ["A. So", "B. Because", "C. Although", "D. But"], answer: "C", explanation: "Đáp án C. 'Although' thể hiện sự nhượng bộ, dù bận nhưng vẫn giúp đỡ.", hint: "Có rất nhiều việc >< vẫn giúp tôi làm bài tập." },
+                    { question: "40. We stayed at home ___________ the weather was terrible.", options: ["A. so", "B. because", "C. although", "D. but"], answer: "B", explanation: "Đáp án B. 'Because' đưa ra lý do cho việc ở nhà.", hint: "Thời tiết tồi tệ là nguyên nhân khiến chúng tôi ở nhà." }
+                ]
+            }
+        };
+
+        // Global state variables
+        let currentTopicKey = 'level1'; 
+        let quizData = {};
+        let quizQuestions = []; 
+        let currentQuizIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizStartTime = null;
+        let quizEndTime = null;
+
+        // DOM Elements
+        const quizQuestionElem = document.getElementById('quiz-question');
+        const quizOptionsElem = document.getElementById('quiz-options');
+        const currentQuestionSpan = document.getElementById('current-question');
+        const totalQuestionsSpan = document.getElementById('total-questions-quiz');
+        const submitAnswerBtn = document.getElementById('submit-answer-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const nextQuizBtn = document.getElementById('next-quiz-btn');
+        const prevQuizBtn = document.getElementById('prev-quiz-btn');
+        const resetQuizBtn = document.getElementById('reset-quiz-btn');
+        const clearProgressBtn = document.getElementById('clear-progress-btn');
+        const exportResultsBtn = document.getElementById('export-results-btn');
+        const quizScoreElem = document.getElementById('quiz-score');
+        const quizTotalQuestionsElem = document.getElementById('quiz-total-questions-score');
+        const resultMessageElem = document.getElementById('result-message');
+        const explanationTextElem = document.getElementById('explanation-text');
+        const hintTextElem = document.getElementById('hint-text');
+        const questionNavigatorElem = document.getElementById('question-navigator');
+        const noteTextarea = document.getElementById('noteTextarea');
+        const saveNoteBtn = document.getElementById('saveNoteBtn');
+        const exportNoteBtn = document.getElementById('exportNoteBtn');
+        const noteList = document.getElementById('noteList');
+        const generalMessageBox = document.getElementById('general-message-box');
+        
+        // Navigation Badges
+        const btnLevel1 = document.getElementById('btn-level1');
+        const btnLevel2 = document.getElementById('btn-level2');
+        const btnLevel4 = document.getElementById('btn-level4');
+
+        function switchTopic(topicKey) {
+            currentTopicKey = topicKey;
+            
+            // Update Badge UI
+            btnLevel1.className = topicKey === 'level1' ? 'level-badge active px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm' : 'level-badge inactive px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm';
+            btnLevel2.className = topicKey === 'level2' ? 'level-badge active px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm' : 'level-badge inactive px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm';
+            btnLevel4.className = topicKey === 'level4' ? 'level-badge active px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm' : 'level-badge inactive px-6 py-2.5 rounded-full text-[15px] md:text-base shadow-sm';
+
+            quizData = allTopics[topicKey];
+            quizQuestions = quizData.questions.map(q => ({...q})); 
+            quizQuestions.forEach(q => {
+                q.answered = false;
+                q.isCorrect = null;
+                q.userAnswer = null;
+                q.hintUsed = false;
+            });
+            
+            document.getElementById('quiz-title').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2 text-blue-500"></i> Bài Tập: ${quizData.name}`;
+            totalQuestionsSpan.textContent = quizQuestions.length;
+            quizTotalQuestionsElem.textContent = quizQuestions.length;
+            
+            renderFlashcards(quizData.theory);
+            renderVocabSidebar(quizData.vocabList);
+            
+            loadQuizState(); 
+            loadNotes();
+        }
+
+        // Render main grammar flashcards
+        function renderFlashcards(theoryData) {
+            const container = document.getElementById('flashcards-container');
+            const theorySection = document.getElementById('theory-section');
+            if (!theoryData || theoryData.length === 0) {
+                theorySection.classList.add('hidden');
+                return;
+            }
+            theorySection.classList.remove('hidden');
+            container.innerHTML = '';
+            theoryData.forEach(card => {
+                container.innerHTML += `
+                    <div class="flashcard-container">
+                        <div class="flashcard" onclick="this.classList.toggle('flipped')">
+                            <div class="flashcard-front">
+                                <h3 class="text-xl font-bold mb-3 leading-tight">${card.frontTitle}</h3>
+                                <p class="font-medium text-slate-600 opacity-90">${card.frontDesc}</p>
+                                <div class="mt-auto pt-4 flex items-center text-sm font-bold opacity-70">
+                                    <i class="fa-solid fa-rotate mr-2"></i> Lật thẻ
+                                </div>
+                            </div>
+                            <div class="flashcard-back">
+                                <div class="text-[15px] leading-relaxed w-full">
+                                    ${card.backContent}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render mini vocab flashcards in sidebar
+        function renderVocabSidebar(vocabData) {
+            const vocabSidebar = document.getElementById('vocab-sidebar');
+            const sidebarFlashcards = document.getElementById('sidebar-flashcards');
+
+            if (!vocabData || vocabData.length === 0) {
+                vocabSidebar.classList.add('hidden');
+                return;
+            }
+
+            vocabSidebar.classList.remove('hidden');
+            sidebarFlashcards.innerHTML = '';
+            vocabData.forEach(item => {
+                sidebarFlashcards.innerHTML += `
+                    <div class="mini-flashcard w-full h-16 cursor-pointer group">
+                        <div class="mini-flashcard-inner shadow-sm border border-slate-200">
+                            <div class="mini-front bg-gradient-to-br from-indigo-50 to-blue-50">
+                                <span class="font-bold text-slate-700 text-[15px] group-hover:text-blue-600 transition-colors">${item.front}</span>
+                            </div>
+                            <div class="mini-back bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
+                                <span class="font-bold text-emerald-700 text-[15px]">${item.back}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function saveQuizState() {
+            const stateToSave = {
+                quizQuestionsState: quizQuestions.map(q => ({
+                    answered: q.answered,
+                    isCorrect: q.isCorrect,
+                    userAnswer: q.userAnswer,
+                    hintUsed: q.hintUsed
+                })),
+                currentQuizIndex: currentQuizIndex,
+                score: score,
+                quizStartTime: quizStartTime,
+                quizEndTime: quizEndTime
+            };
+            localStorage.setItem(currentTopicKey + '_quizState_v3', JSON.stringify(stateToSave));
+        }
+
+        function loadQuizState() {
+            const savedState = localStorage.getItem(currentTopicKey + '_quizState_v3');
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                parsedState.quizQuestionsState.forEach((savedQState, index) => {
+                    if (quizQuestions[index]) {
+                        Object.assign(quizQuestions[index], savedQState);
+                    }
+                });
+                currentQuizIndex = parsedState.currentQuizIndex || 0;
+                score = parsedState.score || 0;
+                quizStartTime = parsedState.quizStartTime;
+                quizEndTime = parsedState.quizEndTime;
+            } else {
+                resetQuiz(false); 
+            }
+            
+            quizScoreElem.textContent = score;
+            renderQuestionNavigator();
+            loadQuizQuestion();
+        }
+
+        function updateNavigationButtons() {
+            prevQuizBtn.classList.toggle('hidden', currentQuizIndex === 0);
+            nextQuizBtn.classList.toggle('hidden', currentQuizIndex === quizQuestions.length - 1);
+        }
+
+        function loadQuizQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            quizQuestionElem.innerHTML = q.question.replace(/___________/g, '<span class="highlight-keyword">___________</span>');
+
+            quizOptionsElem.innerHTML = '';
+            selectedOption = null;
+            
+            currentQuestionSpan.textContent = currentQuizIndex + 1;
+
+            q.options.forEach((option) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option';
+                optionDiv.innerHTML = `<button>${option}</button>`;
+                
+                if (!q.answered) {
+                    optionDiv.addEventListener('click', () => selectOption(optionDiv));
+                } else {
+                    optionDiv.classList.add('disabled-option');
+                }
+                
+                quizOptionsElem.appendChild(optionDiv);
+            });
+
+            if (q.answered) {
+                displayAnswerFeedback();
+            } else {
+                resultMessageElem.classList.add('hidden');
+                explanationTextElem.classList.add('hidden');
+                hintTextElem.classList.add('hidden');
+                submitAnswerBtn.classList.remove('hidden');
+                hintBtn.classList.remove('hidden');
+                
+                hintBtn.disabled = q.hintUsed;
+                if(q.hintUsed) {
+                    hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    hintBtn.classList.remove('hover:bg-amber-200');
+                    hintTextElem.innerHTML = `<i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> ${q.hint}`;
+                    hintTextElem.classList.remove('hidden');
+                } else {
+                    hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    hintBtn.classList.add('hover:bg-amber-200');
+                }
+            }
+
+            updateNavigationButtons();
+            updateNavigatorUI();
+        }
+
+        function selectOption(optionDiv) {
+            if (selectedOption) {
+                selectedOption.classList.remove('selected');
+            }
+            selectedOption = optionDiv;
+            selectedOption.classList.add('selected');
+        }
+
+        function checkAnswer() {
+            if (!selectedOption) {
+                showGeneralMessage('Vui lòng chọn một đáp án!', 'warning');
+                return;
+            }
+
+            const q = quizQuestions[currentQuizIndex];
+            if (q.answered) return;
+
+            const userAnswerText = selectedOption.querySelector('button').textContent.trim();
+            q.isCorrect = (userAnswerText.startsWith(q.answer + "."));
+            q.answered = true;
+            q.userAnswer = userAnswerText;
+
+            if (q.isCorrect) score++;
+            
+            quizScoreElem.textContent = score;
+            displayAnswerFeedback();
+            saveQuizState();
+            
+            if(quizQuestions.every(question => question.answered)) {
+                showFinalScore();
+            }
+        }
+        
+        function displayAnswerFeedback() {
+            const q = quizQuestions[currentQuizIndex];
+            
+            Array.from(quizOptionsElem.children).forEach(optionDiv => {
+                const optionText = optionDiv.querySelector('button').textContent.trim();
+                optionDiv.style.cursor = 'default';
+                optionDiv.classList.add('disabled-option');
+                optionDiv.replaceWith(optionDiv.cloneNode(true)); 
+
+                if (optionText.startsWith(q.answer + ".")) {
+                    optionDiv.classList.add('correct');
+                }
+                if (optionText === q.userAnswer) {
+                    optionDiv.classList.add(q.isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            document.querySelectorAll('.quiz-option').forEach(clonedDiv => {
+                 const optionText = clonedDiv.querySelector('button').textContent.trim();
+                 if (optionText.startsWith(q.answer + ".")) {
+                    clonedDiv.classList.add('correct');
+                }
+                if (optionText === q.userAnswer) {
+                    clonedDiv.classList.add(q.isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+            
+            if (q.isCorrect) {
+                resultMessageElem.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Chính xác!`;
+                resultMessageElem.className = `result-message correct shadow-sm`;
+            } else {
+                resultMessageElem.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Sai rồi!`;
+                resultMessageElem.className = `result-message incorrect shadow-sm`;
+            }
+            
+            resultMessageElem.classList.remove('hidden');
+            explanationTextElem.innerHTML = `<strong>Giải thích:</strong> ${q.explanation}`;
+            explanationTextElem.classList.remove('hidden');
+            
+            submitAnswerBtn.classList.add('hidden');
+            hintBtn.classList.add('hidden');
+            hintTextElem.classList.add('hidden');
+
+            updateNavigatorUI();
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                loadQuizQuestion();
+            }
+        }
+
+        function showFinalScore() {
+            resetQuizBtn.classList.remove('hidden');
+            if (!quizEndTime) {
+                quizEndTime = Date.now();
+                saveQuizState();
+            }
+            showGeneralMessage(`🎉 Chúc mừng bạn đã hoàn thành bài tập! Điểm số: ${score}/${quizQuestions.length}`, 'info');
+        }
+
+        function resetQuiz(shouldSave = true) {
+            currentQuizIndex = 0;
+            score = 0;
+            quizQuestions.forEach(q => {
+                q.answered = false;
+                q.isCorrect = null;
+                q.userAnswer = null;
+                q.hintUsed = false;
+            });
+            quizStartTime = Date.now();
+            quizEndTime = null;
+            quizScoreElem.textContent = score;
+            
+            if (shouldSave) {
+                saveQuizState();
+            }
+            
+            renderQuestionNavigator();
+            loadQuizQuestion();
+            resetQuizBtn.classList.add('hidden');
+        }
+
+        function clearCurrentProgress() {
+            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ kết quả đã làm của cấp độ này và làm lại từ đầu không?")) {
+                localStorage.removeItem(currentTopicKey + '_quizState_v3');
+                resetQuiz(true); 
+                showGeneralMessage('Đã xóa kết quả lưu. Hãy bắt đầu làm lại bài!', 'info');
+            }
+        }
+
+        function showHint() {
+            const q = quizQuestions[currentQuizIndex];
+            if (q.hint && !q.answered) {
+                hintTextElem.innerHTML = `<i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> ${q.hint}`;
+                hintTextElem.classList.remove('hidden');
+                q.hintUsed = true;
+                hintBtn.disabled = true;
+                hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                hintBtn.classList.remove('hover:bg-amber-200');
+                saveQuizState();
+            }
+        }
+
+        function renderQuestionNavigator() {
+            questionNavigatorElem.innerHTML = '';
+            quizQuestions.forEach((q, index) => {
+                const navButton = document.createElement('button');
+                navButton.className = 'navigator-button shadow-sm';
+                navButton.textContent = index + 1;
+                navButton.addEventListener('click', () => goToQuestion(index));
+                questionNavigatorElem.appendChild(navButton);
+            });
+            updateNavigatorUI();
+        }
+
+        function updateNavigatorUI() {
+            Array.from(questionNavigatorElem.children).forEach((button, index) => {
+                const q = quizQuestions[index];
+                button.classList.remove('active-question', 'answered-correctly', 'answered-incorrectly');
+                if (index === currentQuizIndex) {
+                    button.classList.add('active-question');
+                }
+                if (q && q.answered) {
+                    button.classList.add(q.isCorrect ? 'answered-correctly' : 'answered-incorrectly');
+                }
+            });
+        }
+
+        function goToQuestion(index) {
+            currentQuizIndex = index;
+            loadQuizQuestion();
+        }
+
+        function exportQuizResults() {
+            const totalQuestions = quizQuestions.length;
+            const correctAnswers = score;
+            const answeredQuestions = quizQuestions.filter(q => q.answered).length;
+            const start = quizStartTime ? new Date(quizStartTime) : new Date();
+            const end = quizEndTime ? new Date(quizEndTime) : new Date();
+            const durationMs = end.getTime() - start.getTime();
+
+            const minutes = Math.floor((durationMs / 1000) / 60);
+            const seconds = Math.floor((durationMs / 1000) % 60);
+            let durationString = `${minutes} phút ${seconds} giây`;
+
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Kết Quả - ${quizData.name}</title>
+                </head><body>
+                <h1>Kết Quả: ${quizData.name}</h1>
+                <p><strong>Điểm của bạn:</strong> ${correctAnswers} / ${totalQuestions}</p>
+                <p><strong>Thời gian làm bài:</strong> ${durationString}</p>
+                <h2>Chi tiết:</h2><ol>`;
+
+            quizQuestions.forEach((q, index) => {
+                if (q.answered) {
+                    htmlContent += `<li>
+                        <p><strong>Câu ${index + 1}:</strong> ${q.question}</p>
+                        <p><strong>Đáp án của bạn:</strong> ${q.userAnswer} (${q.isCorrect ? 'Chính xác' : 'Sai'})</p>
+                        <p><strong>Đáp án đúng:</strong> ${q.options.find(opt => opt.startsWith(q.answer + "."))}</p>
+                        <p><em>${q.explanation}</em></p>
+                    </li>`;
+                }
+            });
+
+            htmlContent += `</ol></body></html>`;
+
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ket_qua_${currentTopicKey}.doc`;
+            link.click();
+            showGeneralMessage('Đã xuất file kết quả thành công!', 'info');
+        }
+
+        function showGeneralMessage(msg, type = 'info') {
+            generalMessageBox.innerHTML = msg;
+            if (type === 'error') {
+                generalMessageBox.className = 'message-box block bg-rose-50 text-rose-800 border-rose-200 shadow-sm mx-auto w-full rounded-lg text-center font-bold p-3';
+            } else if (type === 'warning') {
+                generalMessageBox.className = 'message-box block bg-amber-50 text-amber-800 border-amber-200 shadow-sm mx-auto w-full rounded-lg text-center font-bold p-3';
+            } else {
+                generalMessageBox.className = 'message-box block bg-blue-50 text-blue-800 border-blue-200 shadow-sm mx-auto w-full rounded-lg text-center font-bold p-3';
+            }
+            
+            setTimeout(() => { generalMessageBox.classList.add('hidden'); }, 3000);
+        }
+
+        function getNoteStorageKey() {
+            return currentTopicKey + '_notes_v3';
+        }
+
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+            noteList.innerHTML = notes.length ? '' : '<li class="text-slate-400 text-sm text-center py-4 italic">Chưa có ghi chú.</li>';
+            notes.forEach((note, index) => {
+                const li = document.createElement('li');
+                li.className = 'note-item flex justify-between items-start p-3 border-b border-slate-200 last:border-0 bg-white rounded-lg mb-2 shadow-sm';
+                li.innerHTML = `<span class="note-text-display text-sm text-slate-700 flex-grow pr-3">${note.replace(/\n/g, '<br>')}</span><button data-index="${index}" class="delete-note-btn text-rose-400 hover:text-rose-600 transition-colors"><i class="fa-solid fa-circle-xmark text-lg"></i></button>`;
+                noteList.appendChild(li);
+            });
+            attachDeleteListeners();
+        }
+
+        function saveNote() {
+            const note = noteTextarea.value.trim();
+            if (note) {
+                let notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+                notes.push(note);
+                localStorage.setItem(getNoteStorageKey(), JSON.stringify(notes));
+                noteTextarea.value = '';
+                loadNotes();
+                showGeneralMessage('<i class="fa-solid fa-check mr-2"></i> Ghi chú đã được lưu!', 'info');
+            }
+        }
+
+        function exportNotes() {
+            const notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+            if(notes.length === 0) {
+                showGeneralMessage('<i class="fa-solid fa-triangle-exclamation mr-2"></i> Bạn chưa có ghi chú nào để xuất!', 'warning');
+                return;
+            }
+            
+            let htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Ghi Chú - ${quizData.name}</title>
+                </head><body>
+                <h2>Ghi Chú: ${quizData.name}</h2>
+                <ul>`;
+                
+            notes.forEach(note => {
+                htmlContent += `<li>${note.replace(/\n/g, '<br>')}</li>`;
+            });
+            
+            htmlContent += `</ul></body></html>`;
+
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ghi_chu_${currentTopicKey}.doc`;
+            link.click();
+            showGeneralMessage('<i class="fa-solid fa-download mr-2"></i> Đã xuất file ghi chú thành công!', 'info');
+        }
+
+        function attachDeleteListeners() {
+            document.querySelectorAll('.delete-note-btn').forEach(button => {
+                button.onclick = (event) => {
+                    const index = parseInt(event.currentTarget.dataset.index);
+                    let notes = JSON.parse(localStorage.getItem(getNoteStorageKey())) || [];
+                    notes.splice(index, 1);
+                    localStorage.setItem(getNoteStorageKey(), JSON.stringify(notes));
+                    loadNotes();
+                };
+            });
+        }
+        
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            submitAnswerBtn.addEventListener('click', checkAnswer);
+            hintBtn.addEventListener('click', showHint);
+            nextQuizBtn.addEventListener('click', nextQuestion);
+            prevQuizBtn.addEventListener('click', prevQuestion);
+            resetQuizBtn.addEventListener('click', () => resetQuiz(true));
+            clearProgressBtn.addEventListener('click', clearCurrentProgress);
+            exportResultsBtn.addEventListener('click', exportQuizResults);
+            saveNoteBtn.addEventListener('click', saveNote);
+            exportNoteBtn.addEventListener('click', exportNotes);
+            
+            switchTopic('level1'); // Load Mặc định ban đầu
+        });
+    </script>
+</body>
+</html>
