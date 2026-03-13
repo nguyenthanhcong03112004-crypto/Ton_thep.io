@@ -3,244 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trắc Nghiệm Ôn Tập Tiếng Anh 7 - Giữa Kỳ II</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Trắc Nghiệm Tiếng Anh 7 - Ôn Tập Giữa Kỳ II</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & Babel CDNs -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .underline-text u { text-decoration: underline; text-underline-offset: 4px; font-weight: bold; color: #1d4ed8; }
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+        body { font-family: 'Quicksand', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .nav-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .underline-text u { text-decoration: underline; text-underline-offset: 4px; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // Custom Icon Component to handle Lucide in browser
         const Icon = ({ name, size = 20, className = "" }) => {
-            useEffect(() => {
-                lucide.createIcons();
+            useEffect(() => { 
+                if (window.lucide) { window.lucide.createIcons(); }
             }, [name]);
             return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
         };
 
+        const passages = {
+            t1_cloze: "My family usually (23) …….. films together at weekends. Sometimes we go to the cinema, but most of the time we watch films at (24) ………. It's a cheap entertainment activity because we don't have to buy (25) ……….. It also improves our relationship because it brings us closer. My parents (26)………….. quality time with us, and we don't use our phones. Besides, after watching a film, we talk about its lessons and share what we like about it. This is a good way to learn about life (27) ………… the world.",
+            t1_reading: "Da Lat Flower Festival is one of the most famous festivals in the South of Viet Nam. It takes place every year, but its date is not fixed. It’s often held at the end of December. The first festival was in December 2005 and it attracted about eighty thousand visitors. During the festival, people go to Da Lat to see flower exhibitions. There are hundreds of kinds of flowers; most of them come from Viet Nam, but there are some kinds from other countries as well. They make the streets colorful and beautiful. People also have chance to watch lively street parade and visit Flower Market. The festival attracts local people and visitors from all over the world.",
+            t2_cloze: "Movies are a great way to relax and have fun. There are many types of films, such as action, comedy, and _____ (23). Each genre offers something different for viewers. For example, action films are exciting and full of _____ (24), while comedies make us laugh. I enjoy watching movies with my friends because we can _____ (25) our thoughts afterward. Recently, I saw a film about a young hero who goes on an incredible journey to save his _____ (26). The special effects were amazing and made the story more _____ (27). If you love films, be sure to check out new releases in theaters!",
+            t2_reading: "Every year, thousands of people come to Edinburgh, the capital city of Scotland, to be part of the Edinburgh Festival. For three weeks every August and September the city is filled with actors and artists from all over the world. They come to Edinburgh for the biggest arts festival in Britain. During this time, the streets of the city are alive with music and dance from early in the morning untill late at night. You can even see artists painting pictures on the streets. Tens of thousands of tourists come to the festival to see new films and plays and to hear music played by famous musicians. This year, you can see over five hundred performances with actors from more than forty countries. The tickets for these performances are quite cheap, and it is usually easier to see your favourite star in Edinburgh than it is in London."
+        };
+
         const testData = {
             1: [
-                { id: 9, type: 'pronunciation', q: "Question 9. Find the word with a different underlined sound:", options: ["c<u>y</u>cle", "tr<u>ai</u>n", "s<u>i</u>gn", "b<u>y</u>"], correct: 1, explanation: "Phần gạch chân: cycle /ai/, sign /ai/, by /ai/. Train phát âm là /ei/." },
-                { id: 10, type: 'pronunciation', q: "Question 10. Find the word with a different underlined sound:", options: ["<u>ear</u>", "id<u>ea</u>", "sh<u>are</u>", "t<u>ear</u>"], correct: 2, explanation: "ear, idea, tear phát âm là /iə/. Share phát âm là /eə/." },
-                { id: 11, type: 'grammar', q: "Question 11. Public ________ in my town is good and cheap.", options: ["travel", "tour", "transport", "visit"], correct: 2, explanation: "'Public transport' (phương tiện công cộng) là cụm từ cố định." },
-                { id: 12, type: 'grammar', q: "Question 12. For _________ , people have a feast with Turkey, cornbread and sweet potatoes.", options: ["Thanksgiving", "Easter", "Christmas", "Halloween"], correct: 0, explanation: "Gà tây (Turkey) là món đặc trưng của lễ Tạ ơn (Thanksgiving)." },
-                { id: 13, type: 'grammar', q: "Question 13. “Tom and Jerry” is an _________. Children like it very much.", options: ["horror", "animation", "documentary", "fantasy"], correct: 1, explanation: "Phim hoạt hình là 'animation'." },
-                { id: 14, type: 'grammar', q: "Question 14. You _______ wear a helmet when riding a motorbike.", options: ["can", "can’t", "must", "mustn’t"], correct: 2, explanation: "Dùng 'must' chỉ sự bắt buộc (phải đội mũ bảo hiểm)." },
-                { id: 15, type: 'grammar', q: "Question 15. The film was directed by one famous director. _____, it wasn’t a big success.", options: ["Although", "In spite of", "Despite", "However"], correct: 3, explanation: "However đứng giữa 2 câu ngăn cách bởi dấu phẩy chỉ sự đối lập." },
-                { id: 16, type: 'grammar', q: "Question 16. If people _________ the traffic laws, there are no more accidents.", options: ["agree", "take care of", "obey", "look after"], correct: 2, explanation: "Obey the laws: tuân thủ luật lệ." },
-                { id: 17, type: 'grammar', q: "Question 17. The end of the film was so _______ that many people cried.", options: ["funny", "shocking", "moving", "happy"], correct: 2, explanation: "Moving: cảm động." },
-                { id: 18, type: 'grammar', q: "Question 18. ___________Mary and Ann your students 7 years ago?", options: ["Did", "Were", "Are", "Was"], correct: 1, explanation: "Quá khứ đơn, chủ ngữ số nhiều dùng 'Were'." },
-                { id: 19, type: 'grammar', q: "Question 19. You can go when the traffic lights turn _______.", options: ["red", "yellow", "pink", "green"], correct: 3, explanation: "Đèn xanh (green) được phép đi." },
-                { id: 20, type: 'ads', q: "Question 20. We need someone to take care of a two-year-old child...", options: ["take", "look", "make", "with"], correct: 0, explanation: "Take care of: chăm sóc." },
-                { id: 21, type: 'ads', q: "Question 21. The perfect people should be kind, friendly...", options: ["will", "be", "are", "have"], correct: 1, explanation: "Sau should + V nguyên mẫu." },
-                { id: 22, type: 'ads', q: "Question 22. ...friendly and good with young children", options: ["with", "so", "but", "and"], correct: 3, explanation: "Dùng 'and' nối các tính từ bổ trợ nhau." },
-                { id: 23, type: 'reading', q: "Question 23. My family usually watch films together...", options: ["watch", "watches", "is watching", "watched"], correct: 0, explanation: "Chủ ngữ số nhiều 'family' chỉ các thành viên." },
-                { id: 33, type: 'writing', q: "Question 33. It rained hard. We went to school on time.", options: ["Although it rained hard, but we went to school on time.", "Although it rained hard, we went to school on time.", "It rained hard, and we went to school on time.", "It rained hard, so we went to school on time."], correct: 1, explanation: "Cấu trúc Although không dùng 'but'." },
-                { id: 38, type: 'rewrite', q: "Question 38. Why don’t we go to the cinema this evening? -> How about...", options: ["How about to go to the cinema?", "How about go to the cinema?", "How about going to the cinema?", "How about we go to the cinema?"], correct: 2, explanation: "How about + V-ing?" },
-                { id: 39, type: 'rewrite', q: "Question 39. I find watching comedies interesting. -> I am interested...", options: ["I am interested in watch comedies.", "I am interested in to watch comedies.", "I am interested with watching comedies.", "I am interested in watching comedies."], correct: 3, explanation: "Be interested in + V-ing." },
-                { id: 40, type: 'rewrite', q: "Question 40. He performed excellently, but he didn’t win an Oscar. (Use 'Although')", options: ["Although he performed excellently, he didn’t win an Oscar.", "Although he performed excellently, but he didn’t win.", "Although he didn't win an Oscar, he performed excellently.", "He performed excellently although he didn’t win."], correct: 0, explanation: "Mặc dù diễn hay nhưng không thắng Oscar." },
+                // Pronunciation
+                { id: 109, type: 'pronunciation', q: "Q9. Find the word with a different underlined sound:", options: ["c<u>y</u>cle", "tr<u>ai</u>n", "s<u>i</u>gn", "b<u>y</u>"], correct: 1, explanation: "cycle, sign, by phát âm là /ai/. Train phát âm là /ei/." },
+                { id: 110, type: 'pronunciation', q: "Q10. Find the word with a different underlined sound:", options: ["<u>ear</u>", "id<u>ea</u>", "sh<u>are</u>", "t<u>ear</u>"], correct: 2, explanation: "ear, idea, tear phát âm là /iə/. Share phát âm là /eə/." },
+                // Grammar
+                { id: 111, type: 'grammar', q: "Q11. Public ________ in my town is good and cheap.", options: ["travel", "tour", "transport", "visit"], correct: 2, explanation: "'Public transport' (phương tiện công cộng)." },
+                { id: 112, type: 'grammar', q: "Q12. For _________ , people have a feast with Turkey, cornbread and sweet potatoes.", options: ["Thanksgiving", "Easter", "Christmas", "Halloween"], correct: 0, explanation: "Thanksgiving gắn liền với món Gà Tây (Turkey)." },
+                { id: 113, type: 'grammar', q: "Q13. “Tom and Jerry” is an _________. Children like it very much.", options: ["horror", "animation", "documentary", "fantasy"], correct: 1, explanation: "Phim hoạt hình: animation." },
+                { id: 114, type: 'grammar', q: "Q14. You _______ wear a helmet when riding a motorbike.", options: ["can", "can’t", "must", "mustn’t"], correct: 2, explanation: "Must: bắt buộc (đội mũ bảo hiểm)." },
+                { id: 115, type: 'grammar', q: "Q15. The film was directed by one famous director. _____, it wasn’t a big success.", options: ["Although", "In spite of", "Despite", "However"], correct: 3, explanation: "However đứng giữa 2 câu ngăn bởi dấu phẩy chỉ sự đối lập." },
+                { id: 116, type: 'grammar', q: "Q16. If people _________ the traffic laws, there are no more accidents.", options: ["agree", "take care of", "obey", "look after"], correct: 2, explanation: "Obey traffic laws: tuân thủ luật giao thông." },
+                { id: 117, type: 'grammar', q: "Q17. The end of the film was so _______ that many people cried.", options: ["funny", "shocking", "moving", "happy"], correct: 2, explanation: "Moving: cảm động." },
+                { id: 118, type: 'grammar', q: "Q18. ___________Mary and Ann your students 7 years ago?", options: ["Did", "Were", "Are", "Was"], correct: 1, explanation: "Quá khứ đơn, chủ ngữ số nhiều: Were." },
+                { id: 119, type: 'grammar', q: "Q19. You can go when the traffic lights turn _______.", options: ["red", "yellow", "pink", "green"], correct: 3, explanation: "Đèn xanh (green) được phép đi." },
+                // Ads
+                { id: 120, type: 'ads', q: "Q20. We need someone to (20)____ care of a two-year-old child...", options: ["take", "look", "make", "with"], correct: 0, explanation: "Take care of: chăm sóc." },
+                { id: 121, type: 'ads', q: "Q21. The perfect people should (21) ____ kind...", options: ["will", "be", "are", "have"], correct: 1, explanation: "Sau should + V nguyên mẫu (be)." },
+                { id: 122, type: 'ads', q: "Q22. ...friendly (22) _____ good with young children", options: ["with", "so", "but", "and"], correct: 3, explanation: "Friendly and good: thân thiện và tốt bụng." },
+                // Reading Cloze
+                { id: 123, type: 'reading', passage: passages.t1_cloze, q: "Q23. My family usually (23) …….. films together...", options: ["watch", "watches", "is watching", "watched"], correct: 0, explanation: "Hiện tại đơn, chủ ngữ số nhiều." },
+                { id: 124, type: 'reading', passage: passages.t1_cloze, q: "Q24. ...watch films at (24) ……….", options: ["School", "company", "work", "home"], correct: 3, explanation: "Watch films at home." },
+                { id: 125, type: 'reading', passage: passages.t1_cloze, q: "Q25. ...don't have to buy (25) ………..", options: ["food", "books", "tickets", "bread"], correct: 2, explanation: "Xem ở nhà không cần mua vé (tickets)." },
+                { id: 126, type: 'reading', passage: passages.t1_cloze, q: "Q26. My parents (26)………….. quality time with us.", options: ["spend", "take", "go", "hear"], correct: 0, explanation: "Spend quality time: dành thời gian chất lượng." },
+                { id: 127, type: 'reading', passage: passages.t1_cloze, q: "Q27. ...learn about life (27) ………… the world.", options: ["in", "at", "on", "and"], correct: 3, explanation: "Life and the world." },
+                // Reading Comp
+                { id: 128, type: 'reading', passage: passages.t1_reading, q: "Q28. Da Lat Flower Festival takes place_____", options: ["every two years", "every year", "every spring", "Once a month"], correct: 1, explanation: "Đoạn văn ghi 'every year'." },
+                { id: 129, type: 'reading', passage: passages.t1_reading, q: "Q29. It was first held in Da Lat _____", options: ["in 2005", "last year", "in December", "10 years ago"], correct: 0, explanation: "Ghi: 'The first festival was in December 2005'." },
+                { id: 130, type: 'reading', passage: passages.t1_reading, q: "Q30. In the first Flower Festival, there were eighty thousand_____", options: ["kinds of flowers", "flowers", "visitors", "exhibitions"], correct: 2, explanation: "visitors." },
+                { id: 131, type: 'reading', passage: passages.t1_reading, q: "Q31. Most flowers__from Viet Nam...", options: ["are", "go", "come", "is"], correct: 2, explanation: "Flowers (số nhiều) dùng 'come'." },
+                { id: 132, type: 'reading', passage: passages.t1_reading, q: "Q32. People also have a chance to watch lively street _____", options: ["dance", "artists", "parade", "flowers"], correct: 2, explanation: "street parade." },
+                // Writing MCQ
+                { id: 133, type: 'grammar', q: "Q33. It rained hard. We went to school on time.", options: ["Although it rained hard, but we went to school on time.", "Although it rained hard, we went to school on time.", "It rained hard, and we went to school on time.", "It rained hard, so we went to school on time."], correct: 1, explanation: "Although không đi kèm 'but'." },
+                { id: 134, type: 'grammar', q: "Q34. Ba’s bike is the same as Trung’s bike.", options: ["Trung’s bike is not different from Ba’s bike.", "Trung’s bike is different from Ba’s bike.", "Trung’s bike is not the same as Ba’s bike.", "Trung’s bike is like Ba’s bike."], correct: 0, explanation: "'The same as' tương đương 'not different from'." },
+                // Rewrite Typed
+                { id: 135, type: 'writing', q: "Q35. The story is silly. Many people enjoy the film. (Use 'Although')", isTyped: true, correct: "Although the story is silly, many people enjoy the film", explanation: "Mặc dù câu chuyện ngớ ngẩn, nhiều người vẫn thích phim." },
+                { id: 136, type: 'writing', q: "Q36. The film was a bit frightening. I really enjoyed it. (Use 'Although')", isTyped: true, correct: "Although the film was a bit frightening, I really enjoyed it", explanation: "Mặc dù phim hơi sợ nhưng tôi rất thích." },
+                { id: 137, type: 'writing', q: "Q37. It was cold and wet. He went to the swimming pool. (Use 'However')", isTyped: true, correct: "It was cold and wet. However, he went to the swimming pool", explanation: "However đứng sau dấu chấm và trước dấu phẩy." },
+                { id: 138, type: 'writing', q: "Q38. Why don’t we go to the cinema this evening? -> How about...?", isTyped: true, correct: "How about going to the cinema this evening?", explanation: "How about + V-ing?" },
+                { id: 139, type: 'writing', q: "Q39. I find watching comedies interesting. -> I am interested...", isTyped: true, correct: "I am interested in watching comedies", explanation: "Be interested in + V-ing." },
+                { id: 140, type: 'writing', q: "Q40. He performed excellently, but he didn’t win an Oscar. -> Although...", isTyped: true, correct: "Although he performed excellently, he didn’t win an Oscar", explanation: "Mặc dù biểu diễn xuất sắc nhưng không thắng Oscar." },
             ],
             2: [
-                { id: 9, type: 'pronunciation', q: "Question 9: Find the word with a different underlined sound:", options: ["f<u>i</u>ne", "th<u>i</u>n", "beh<u>i</u>nd", "n<u>i</u>ce"], correct: 1, explanation: "fine /ai/, behind /ai/, nice /ai/. Thin phát âm là /i/." },
-                { id: 10, type: 'pronunciation', q: "Question 10: Find the word with a different underlined sound:", options: ["h<u>air</u>", "f<u>air</u>", "ch<u>ai</u>n", "ch<u>air</u>"], correct: 2, explanation: "hair, fair, chair phát âm là /eə/. Chain phát âm là /ei/." },
-                { id: 11, type: 'grammar', q: "Question 11: You can go when the traffic lights turn _______.", options: ["red", "green", "pink", "yellow"], correct: 1, explanation: "Đèn xanh được đi." },
-                { id: 12, type: 'grammar', q: "Question 12: ._______ is it from the bus station to the hospital?", options: ["How much", "How long", "How far", "How often"], correct: 2, explanation: "How far hỏi khoảng cách." },
-                { id: 13, type: 'grammar', q: "Question 13: He shouldn’t drive so fast to avoid accidents.", options: ["drives", "to drive", "driving", "drive"], correct: 3, explanation: "Sau shouldn't + V nguyên mẫu." },
-                { id: 15, type: 'grammar', q: "Question 15: .___________ she has lots of money, she is very modest.", options: ["Although", "Because", "However", "Despite"], correct: 0, explanation: "Mặc dù giàu nhưng khiêm tốn." },
-                { id: 18, type: 'grammar', q: "Question 18: This is a moving film and it makes me cry a lot.", options: ["funny", "moving", "comedy", "excited"], correct: 1, explanation: "Moving: cảm động." },
-                { id: 22, type: 'ads', q: "Question 22: Walk on the pavement to avoid crowded streets!", options: ["road", "traffic signs", "pavement", "bridge"], correct: 2, explanation: "Pavement: vỉa hè." },
-                { id: 28, type: 'reading', q: "Question 28: How many people come to the Edinburgh Festival every year?", options: ["Thousand people", "Thousands of people", "Some people", "Few people"], correct: 1, explanation: "Đoạn văn: 'thousands of people'." },
-                { id: 32, type: 'reading', q: "Question 32: How much are the tickets for these performances?", options: ["Quite cheap", "Very expensive", "Not cheap", "Quite expensive"], correct: 0, explanation: "Đoạn văn: 'quite cheap'." },
-                { id: 35, type: 'rewrite', q: "Question 35. The distance from my house to my school is about five kilometres. (Use 'IT')", options: ["It is five kilometres from my house to my school.", "It is about five kilometres from my house to my school.", "It has about five kilometres...", "It is distance about five kilometres..."], correct: 1, explanation: "Cấu trúc: It is + distance + from... to..." },
-                { id: 37, type: 'rewrite', q: "Question 37. He was tired, but he still performed the lion dance. (Use 'ALTHOUGH')", options: ["Although he was tired, but he still performed.", "He was tired although he still performed.", "Although he was tired, he still performed the lion dance.", "Despite he was tired, he still performed."], correct: 2, explanation: "Although + clause, clause." },
-                { id: 40, type: 'rewrite', q: "Question 40. He performed excellently, but he didn’t win an Oscar. -> Although...", options: ["Although he performed excellently, he didn’t win an Oscar.", "Although he performed excellently, but he didn’t win.", "Although he didn't win, he performed excellently.", "Despite he performed excellently..."], correct: 0, explanation: "Mặc dù diễn hay nhưng không thắng." },
+                // Pronunciation
+                { id: 209, type: 'pronunciation', q: "Q9: Find the word with a different underlined sound:", options: ["f<u>i</u>ne", "th<u>i</u>n", "beh<u>i</u>nd", "n<u>i</u>ce"], correct: 1, explanation: "thin /i/, các từ khác /ai/." },
+                { id: 210, type: 'pronunciation', q: "Q10: Find the word with a different underlined sound:", options: ["h<u>air</u>", "f<u>air</u>", "ch<u>ai</u>n", "ch<u>air</u>"], correct: 2, explanation: "chain /ei/, các từ khác /eə/." },
+                // Grammar
+                { id: 211, type: 'grammar', q: "Q11: You can go when the traffic lights turn _______.", options: ["red", "green", "pink", "yellow"], correct: 1, explanation: "Đèn xanh được phép đi." },
+                { id: 212, type: 'grammar', q: "Q12: ._______ is it from the bus station to the hospital?", options: ["How much", "How long", "How far", "How often"], correct: 2, explanation: "Hỏi khoảng cách: How far." },
+                { id: 213, type: 'grammar', q: "Q13: He shouldn’t _______ so fast to avoid accidents.", options: ["drives", "to drive", "driving", "drive"], correct: 3, explanation: "Sau shouldn't + V nguyên mẫu." },
+                { id: 214, type: 'grammar', q: "Q14: __________ you always get up late on the weekends?", options: ["Is", "Are", "Do", "Does"], correct: 2, explanation: "Câu hỏi với 'you' dùng trợ động từ 'Do'." },
+                { id: 215, type: 'grammar', q: "Q15: .___________ she has lots of money, she is very modest.", options: ["Although", "Because", "However", "Despite"], correct: 0, explanation: "Mặc dù giàu nhưng khiêm tốn." },
+                { id: 216, type: 'grammar', q: "Q16: Cannes ___________ Festival is held in Cannes, France every year.", options: ["Film", "Music", "Arts", "Drama"], correct: 0, explanation: "Cannes Film Festival." },
+                { id: 217, type: 'grammar', q: "Q17: .____________you make apple cakes? - Yes, I can.", options: ["Can", "Should", "Will", "Are"], correct: 0, explanation: "Dùng Can." },
+                { id: 218, type: 'grammar', q: "Q18: This is a _________ film and it makes me cry a lot.", options: ["funny", "moving", "comedy", "excited"], correct: 1, explanation: "Moving (cảm động)." },
+                { id: 219, type: 'grammar', q: "Q19: Children love____________ eggs at Easter.", options: ["cooking", "eating", "painting", "making"], correct: 2, explanation: "Painting eggs (sơn trứng)." },
+                // Ads
+                { id: 220, type: 'ads', q: "Q20: Whether you (20)___ by air, on foot...", options: ["go", "went", "do", "did"], correct: 0, explanation: "Hiện tại đơn." },
+                { id: 221, type: 'ads', q: "Q21: Cross the road carefully at (21)___.", options: ["lanes", "highways", "crossroads", "street"], correct: 2, explanation: "Crossroads: ngã tư." },
+                { id: 222, type: 'ads', q: "Q22: Walk on the (22)___ to avoid crowded streets!", options: ["road", "traffic signs", "pavement", "bridge"], correct: 2, explanation: "Pavement: vỉa hè." },
+                // Cloze
+                { id: 223, type: 'reading', passage: passages.t2_cloze, q: "Q23: ...such as action, comedy, and _____ (23).", options: ["horror", "drama", "science", "documentary"], correct: 0, explanation: "Thể loại phim." },
+                { id: 224, type: 'reading', passage: passages.t2_cloze, q: "Q24: ...action films are exciting and full of _____ (24).", options: ["music", "adventure", "romance", "sound"], correct: 1, explanation: "Adventure (phiêu lưu)." },
+                { id: 225, type: 'reading', passage: passages.t2_cloze, q: "Q25: ...we can _____ (25) our thoughts afterward.", options: ["shares", "share", "shared", "to share"], correct: 1, explanation: "Sau can + V nguyên mẫu." },
+                { id: 226, type: 'reading', passage: passages.t2_cloze, q: "Q26: ...to save his _____ (26).", options: ["family", "city", "treasure", "village"], correct: 0, explanation: "Cứu gia đình." },
+                { id: 227, type: 'reading', passage: passages.t2_cloze, q: "Q27: ...made the story more _____ (27).", options: ["boring", "interesting", "easy", "confusing"], correct: 1, explanation: "Interesting." },
+                // Reading Comp
+                { id: 228, type: 'reading', passage: passages.t2_reading, q: "Q28: How many people come to Edinburgh Festival every year?", options: ["Thousand", "Thousands of people", "Some", "Few"], correct: 1, explanation: "Đoạn văn ghi 'thousands of people'." },
+                { id: 229, type: 'reading', passage: passages.t2_reading, q: "Q29: How long does the Edinburgh Festival last?", options: ["Two months", "Three months", "Three days", "For 3 weeks"], correct: 3, explanation: "Đoạn văn ghi 'For three weeks'." },
+                { id: 230, type: 'reading', passage: passages.t2_reading, q: "Q30. What can you even see artists doing on the streets?", options: ["Playing the guitar", "Singing songs", "Painting pictures", "Dancing"], correct: 2, explanation: "painting pictures." },
+                { id: 231, type: 'reading', passage: passages.t2_reading, q: "Q31. How many performances can people see this year?", options: ["Tens of thousands", "Thousands", "Some", "Over five hundred"], correct: 3, explanation: "over five hundred." },
+                { id: 232, type: 'reading', passage: passages.t2_reading, q: "Q32. How much are the tickets?", options: ["Quite cheap", "Very expensive", "Not cheap", "quite expensive"], correct: 0, explanation: "quite cheap." },
+                // Writing MCQ
+                { id: 233, type: 'grammar', q: "Q33: Combine: She watched the documentary... but she couldn’t understand it.", options: ["Although she..., but...", "She watched..., although...", "Although watching...", "Although she watched the documentary three times, she couldn’t understand it."], correct: 3, explanation: "Cấu trúc Although không dùng 'but'." },
+                { id: 234, type: 'grammar', q: "Q34: What is the distance between Ha Noi and Ho Chi Minh City?", options: ["How far is it from Ha Noi and HCM?", "How far is it from Ha Noi to HCM City?", "How far it is from Ha Noi...", "How far is it between..."], correct: 1, explanation: "How far is it from A to B?" },
+                // Rewrite Typed
+                { id: 235, type: 'writing', q: "Q35. The distance from my house to my school is about 5km. (Use 'IT')", isTyped: true, correct: "It is about five kilometres from my house to my school", explanation: "It is + distance + from A to B." },
+                { id: 236, type: 'writing', q: "Q36. What is the distance between Ha Noi and Hai Phong? (Use 'HOW')", isTyped: true, correct: "How far is it from Ha Noi to Hai Phong?", explanation: "How far is it...?" },
+                { id: 237, type: 'writing', q: "Q37. He was tired, but he still performed the lion dance. (Use 'ALTHOUGH')", isTyped: true, correct: "Although he was tired, he still performed the lion dance", explanation: "Although + Clause 1, Clause 2." },
+                { id: 238, type: 'writing', q: "Q38. Why don’t we go to the cinema this evening? -> How about...?", isTyped: true, correct: "How about going to the cinema this evening?", explanation: "How about + V-ing?" },
+                { id: 239, type: 'writing', q: "Q39. I find watching comedies interesting. -> I am interested...", isTyped: true, correct: "I am interested in watching comedies", explanation: "Be interested in + V-ing." },
+                { id: 240, type: 'writing', q: "Q40. He performed excellently, but he didn’t win an Oscar. -> Although...", isTyped: true, correct: "Although he performed excellently, he didn’t win an Oscar", explanation: "Mặc dù diễn xuất sắc nhưng không thắng." },
             ]
         };
 
         const App = () => {
-            const [currentTest, setCurrentTest] = useState(1);
+            const [testId, setTestId] = useState(1);
             const [currentIdx, setCurrentIdx] = useState(0);
-            const [answers, setAnswers] = useState({});
-            const [showExp, setShowExp] = useState(false);
+            const [userAnswers, setUserAnswers] = useState({}); 
+            const [typedVal, setTypedVal] = useState("");
+            const [showFeedback, setShowFeedback] = useState(false);
             const [finished, setFinished] = useState(false);
+            const [isReviewing, setIsReviewing] = useState(false);
+            const [reviewList, setReviewList] = useState([]);
 
-            const questions = testData[currentTest];
-            const question = questions[currentIdx];
-            const progress = ((currentIdx + 1) / questions.length) * 100;
+            const currentPool = useMemo(() => isReviewing ? reviewList : (testData[testId] || []), [isReviewing, reviewList, testId]);
+            const q = useMemo(() => currentPool[currentIdx] || null, [currentPool, currentIdx]);
+            const progress = useMemo(() => currentPool.length ? ((currentIdx + 1) / currentPool.length) * 100 : 0, [currentIdx, currentPool]);
 
             const handleSelect = (idx) => {
-                if (answers[currentIdx]) return;
-                setAnswers({...answers, [currentIdx]: { selected: idx, isCorrect: idx === question.correct }});
-                setShowExp(true);
+                if (!q || userAnswers[q.id]) return;
+                const isCorrect = idx === q.correct;
+                setUserAnswers(prev => ({ ...prev, [q.id]: { val: idx, isCorrect } }));
+                setShowFeedback(true);
+            };
+
+            const handleTypeSubmit = () => {
+                if (!q || userAnswers[q.id]) return;
+                const normalize = (s) => s.toLowerCase().trim().replace(/[.?]$/, "").replace(/\s+/g, ' ');
+                const isCorrect = normalize(typedVal) === normalize(q.correct);
+                setUserAnswers(prev => ({ ...prev, [q.id]: { val: typedVal, isCorrect } }));
+                setShowFeedback(true);
             };
 
             const next = () => {
-                if (currentIdx < questions.length - 1) {
+                if (currentIdx < currentPool.length - 1) {
                     setCurrentIdx(currentIdx + 1);
-                    setShowExp(false);
-                } else {
-                    setFinished(true);
-                }
+                    setTypedVal("");
+                    setShowFeedback(!!userAnswers[currentPool[currentIdx+1]?.id]);
+                } else { setFinished(true); }
             };
 
-            const reset = () => {
-                setAnswers({});
-                setCurrentIdx(0);
-                setShowExp(false);
-                setFinished(false);
+            const startReview = () => {
+                const mistakes = currentPool.filter(question => !userAnswers[question.id]?.isCorrect);
+                if (!mistakes.length) return;
+                setReviewList(mistakes); setIsReviewing(true); setFinished(false); setCurrentIdx(0); setUserAnswers({}); setTypedVal(""); setShowFeedback(false);
             };
 
-            const switchTest = (id) => {
-                setCurrentTest(id);
-                reset();
+            const resetFull = (newId) => {
+                setTestId(newId || testId); setIsReviewing(false); setFinished(false); setCurrentIdx(0); setUserAnswers({}); setTypedVal(""); setShowFeedback(false);
             };
 
             const score = useMemo(() => {
-                const correct = Object.values(answers).filter(a => a.isCorrect).length;
-                return { correct, total: questions.length, pct: Math.round((correct / questions.length) * 100) };
-            }, [answers, questions]);
+                const correct = Object.values(userAnswers).filter(a => a.isCorrect).length;
+                return { correct, total: currentPool.length };
+            }, [userAnswers, currentPool]);
+
+            if (finished) {
+                const wrongOnes = currentPool.filter(question => !userAnswers[question.id]?.isCorrect);
+                return (
+                    <div className="max-w-4xl mx-auto p-6 animate-in zoom-in duration-300">
+                        <div className="bg-white rounded-3xl shadow-xl p-8 text-center border border-slate-100">
+                            <div className="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6"><Icon name="award" size={40} /></div>
+                            <h2 className="text-3xl font-black mb-2">KẾT QUẢ</h2>
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="bg-indigo-50 p-6 rounded-2xl"><p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Đúng</p><p className="text-4xl font-black text-indigo-700">{score.correct}/{score.total}</p></div>
+                                <div className="bg-slate-50 p-6 rounded-2xl"><p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tỷ lệ</p><p className="text-4xl font-black text-slate-700">{score.total > 0 ? Math.round((score.correct/score.total)*100) : 0}%</p></div>
+                            </div>
+                            {wrongOnes.length > 0 && (
+                                <div className="mb-8 text-left">
+                                    <h3 className="font-bold text-red-500 mb-3 flex items-center gap-2"><Icon name="alert-circle" size={18} /> Các câu làm sai:</h3>
+                                    <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+                                        {wrongOnes.map(wq => <div key={wq.id} className="text-sm p-3 bg-red-50 border border-red-100 rounded-xl text-red-700">{wq.q}</div>)}
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                {wrongOnes.length > 0 && <button onClick={startReview} className="px-8 py-4 bg-red-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-600 shadow-lg">Làm lại câu sai</button>}
+                                <button onClick={() => resetFull()} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700">Làm lại từ đầu</button>
+                                <button onClick={() => resetFull(testId === 1 ? 2 : 1)} className="px-8 py-4 border-2 border-indigo-600 text-indigo-600 rounded-2xl font-bold">Sang Đề {testId === 1 ? 2 : 1}</button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (!q) return null;
 
             return (
-                <div className="min-h-screen p-4 md:p-8">
-                    <div className="max-w-2xl mx-auto">
-                        <header className="text-center mb-8">
-                            <h1 className="text-3xl font-black text-blue-700 mb-2">ENGLISH QUIZ 7</h1>
-                            <p className="text-gray-500 font-medium">Ôn tập Giữa Học Kỳ II (Câu 9 - 40)</p>
-                            <div className="flex justify-center gap-3 mt-6">
-                                {[1, 2].map(id => (
-                                    <button 
-                                        key={id} 
-                                        onClick={() => switchTest(id)}
-                                        className={`px-6 py-2 rounded-full font-bold transition-all ${currentTest === id ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'}`}
-                                    >
-                                        Đề {id}
-                                    </button>
-                                ))}
+                <div className="min-h-screen flex flex-col">
+                    <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-20">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg"><Icon name="graduation-cap" /></div>
+                            <div><h1 className="font-black text-slate-800 text-lg leading-none">ENGLISH 7</h1><p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Mid-Term II {isReviewing && "• REVIEW"}</p></div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+                            {[1, 2].map(id => <button key={id} onClick={() => resetFull(id)} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${testId === id && !isReviewing ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400'}`}>Đề {id}</button>)}
+                        </div>
+                    </div>
+
+                    <div className="bg-white border-b border-slate-100 px-4 py-3 sticky top-[73px] z-10 shadow-sm overflow-x-auto custom-scrollbar">
+                        <div className="max-w-6xl mx-auto flex items-center gap-2">
+                            <span className="text-[10px] font-black text-slate-400 uppercase mr-2 shrink-0">Bảng câu hỏi:</span>
+                            <div className="flex gap-1.5 pb-1">
+                                {currentPool.map((item, index) => {
+                                    const ans = userAnswers[item.id];
+                                    const isCurrent = index === currentIdx;
+                                    let btnStyle = "nav-btn min-w-[32px] h-8 rounded-lg flex items-center justify-center text-xs font-black ";
+                                    if (isCurrent) btnStyle += "bg-indigo-600 text-white ring-2 ring-indigo-200 ";
+                                    else if (ans) btnStyle += ans.isCorrect ? "bg-green-100 text-green-700 " : "bg-red-100 text-red-700 ";
+                                    else btnStyle += "bg-slate-50 text-slate-400 ";
+                                    return <button key={item.id} onClick={() => { setCurrentIdx(index); setTypedVal(""); setShowFeedback(!!userAnswers[item.id]); }} className={btnStyle}>{index + 1}</button>;
+                                })}
                             </div>
-                        </header>
+                        </div>
+                    </div>
 
-                        {!finished ? (
-                            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-                                <div className="h-2 bg-gray-100">
-                                    <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                    <main className={`flex-grow flex flex-col ${q.passage ? 'md:flex-row' : ''}`}>
+                        {q.passage && (
+                            <div className="md:w-1/2 bg-slate-50 p-6 md:p-10 border-r border-slate-200 overflow-y-auto max-h-[40vh] md:max-h-[calc(100vh-125px)] custom-scrollbar">
+                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                                    <div className="flex items-center gap-2 text-indigo-500 mb-4 font-bold uppercase text-xs tracking-widest"><Icon name="book-open" size={14} /> Reading Passage</div>
+                                    <p className="text-lg text-slate-700 leading-relaxed font-medium first-letter:text-4xl first-letter:font-black first-letter:mr-1 first-letter:text-indigo-600 italic underline-text" dangerouslySetInnerHTML={{ __html: q.passage }}></p>
                                 </div>
-                                
-                                <div className="p-6 md:p-10">
-                                    <div className="flex justify-between items-center mb-8">
-                                        <span className="text-[10px] font-black px-2 py-1 bg-blue-100 text-blue-700 rounded-md uppercase tracking-widest">{question.type}</span>
-                                        <span className="text-sm font-bold text-gray-300">CÂU {currentIdx + 1} / {questions.length}</span>
+                            </div>
+                        )}
+                        <div className={`${q.passage ? 'md:w-1/2' : 'max-w-3xl mx-auto w-full'} p-6 md:p-10 flex flex-col`}>
+                            <div className="mb-6 flex justify-between items-center">
+                                <div className="bg-indigo-100 text-indigo-600 text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-wider">{q.type}</div>
+                                <div className="text-slate-300 font-bold text-sm tracking-tighter">Câu {currentIdx + 1} / {currentPool.length}</div>
+                            </div>
+                            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-slate-100 mb-6 flex-grow flex flex-col justify-center">
+                                <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-8 leading-snug underline-text" dangerouslySetInnerHTML={{ __html: q.q }}></h2>
+                                {q.isTyped ? (
+                                    <div className="space-y-4">
+                                        <textarea value={typedVal} onChange={(e) => setTypedVal(e.target.value)} disabled={!!userAnswers[q.id]} placeholder="Gõ câu trả lời của bạn..." className="w-full p-5 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:outline-none min-h-[100px] font-medium transition-all" />
+                                        {!userAnswers[q.id] && <button onClick={handleTypeSubmit} disabled={!typedVal.trim()} className="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold hover:bg-slate-700 disabled:opacity-30 transition-all shadow-lg">Kiểm tra đáp án</button>}
                                     </div>
-
-                                    <h2 className="text-xl md:text-2xl font-bold mb-8 text-gray-800 leading-tight underline-text" 
-                                        dangerouslySetInnerHTML={{ __html: question.q }}>
-                                    </h2>
-
+                                ) : (
                                     <div className="space-y-3">
-                                        {question.options.map((opt, i) => {
-                                            const hasAns = answers[currentIdx] !== undefined;
-                                            const isCorr = i === question.correct;
-                                            const isSel = answers[currentIdx]?.selected === i;
-                                            
-                                            let baseClass = "w-full flex items-center p-4 border-2 rounded-2xl text-left transition-all duration-200 ";
-                                            if (!hasAns) baseClass += "border-gray-100 hover:border-blue-300 hover:bg-blue-50 cursor-pointer";
-                                            else if (isCorr) baseClass += "border-green-500 bg-green-50 text-green-800 shadow-sm";
-                                            else if (isSel) baseClass += "border-red-500 bg-red-50 text-red-800";
-                                            else baseClass += "border-gray-50 opacity-40";
-
+                                        {q.options.map((opt, i) => {
+                                            const ans = userAnswers[q.id];
+                                            const isCorr = i === q.correct;
+                                            const isSel = ans?.val === i;
+                                            let btnClass = "w-full flex items-center p-5 border-2 rounded-2xl text-left transition-all duration-200 ";
+                                            if (!ans) btnClass += "border-slate-50 bg-slate-50 hover:border-indigo-200 hover:bg-indigo-50 hover:translate-x-1 cursor-pointer";
+                                            else if (isCorr) btnClass += "border-green-500 bg-green-50 text-green-800 shadow-sm";
+                                            else if (isSel) btnClass += "border-red-500 bg-red-50 text-red-800";
+                                            else btnClass += "border-slate-50 opacity-40";
                                             return (
-                                                <button key={i} onClick={() => handleSelect(i)} disabled={hasAns} className={baseClass}>
-                                                    <span className={`w-8 h-8 flex items-center justify-center rounded-full border-2 mr-4 font-black text-sm shrink-0 ${hasAns && isCorr ? 'bg-green-500 text-white border-green-500' : 'border-current'}`}>
-                                                        {String.fromCharCode(65 + i)}
-                                                    </span>
-                                                    <span className="font-semibold underline-text" dangerouslySetInnerHTML={{ __html: opt }}></span>
+                                                <button key={i} onClick={() => handleSelect(i)} disabled={!!ans} className={btnClass}>
+                                                    <span className={`w-8 h-8 flex items-center justify-center rounded-full border-2 mr-4 font-black text-xs shrink-0 ${ans && isCorr ? 'bg-green-500 text-white border-green-500' : 'border-current'}`}>{String.fromCharCode(65 + i)}</span>
+                                                    <span className="font-bold text-sm md:text-base underline-text" dangerouslySetInnerHTML={{ __html: opt }}></span>
                                                 </button>
                                             );
                                         })}
                                     </div>
-
-                                    {showExp && (
-                                        <div className="mt-8 p-5 bg-indigo-50 border border-indigo-100 rounded-2xl flex gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                                            <Icon name="lightbulb" className="text-indigo-600 shrink-0 mt-1" />
-                                            <div>
-                                                <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Giải thích</p>
-                                                <p className="text-sm text-indigo-900 font-medium leading-relaxed">{question.explanation}</p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-between items-center mt-10 pt-6 border-t border-gray-50">
-                                        <button 
-                                            onClick={() => {setCurrentIdx(currentIdx - 1); setShowExp(false);}}
-                                            disabled={currentIdx === 0}
-                                            className={`flex items-center gap-2 font-bold ${currentIdx === 0 ? 'text-gray-200' : 'text-gray-500 hover:text-blue-600 transition'}`}
-                                        >
-                                            <Icon name="chevron-left" /> Trước
-                                        </button>
-
-                                        <button 
-                                            onClick={next}
-                                            disabled={!answers[currentIdx]}
-                                            className={`px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-2 transition-all shadow-xl active:scale-95 ${!answers[currentIdx] ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                                        >
-                                            {currentIdx === questions.length - 1 ? 'Kết quả' : 'Tiếp theo'} <Icon name="chevron-right" />
-                                        </button>
+                                )}
+                                {showFeedback && (
+                                    <div className={`mt-8 p-6 rounded-2xl border flex gap-4 animate-in fade-in slide-in-from-top-4 duration-500 ${userAnswers[q.id]?.isCorrect ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${userAnswers[q.id]?.isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}><Icon name={userAnswers[q.id]?.isCorrect ? "check" : "x"} /></div>
+                                        <div><p className={`font-black text-sm uppercase mb-1 ${userAnswers[q.id]?.isCorrect ? 'text-green-600' : 'text-red-600'}`}>{userAnswers[q.id]?.isCorrect ? "Chính xác!" : "Sai rồi!"}</p>{!userAnswers[q.id]?.isCorrect && q.isTyped && <p className="text-xs text-red-800 mb-2">Đáp án: <span className="font-bold">{q.correct}</span></p>}<p className="text-sm text-slate-600 font-medium italic">{q.explanation}</p></div>
                                     </div>
-                                </div>
+                                )}
                             </div>
-                        ) : (
-                            <div className="bg-white rounded-3xl shadow-2xl p-10 text-center border border-gray-100">
-                                <div className="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                                    <Icon name="award" size={48} />
-                                </div>
-                                <h2 className="text-4xl font-black text-gray-800 mb-2">HOÀN THÀNH!</h2>
-                                <p className="text-gray-400 font-bold mb-8">Bạn đã hoàn tất Đề {currentTest}</p>
-
-                                <div className="grid grid-cols-2 gap-4 mb-10">
-                                    <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                                        <p className="text-[10px] font-black text-blue-400 uppercase mb-1">Kết quả</p>
-                                        <p className="text-4xl font-black text-blue-700">{score.correct}/{score.total}</p>
-                                    </div>
-                                    <div className="bg-green-50 p-6 rounded-2xl border border-green-100">
-                                        <p className="text-[10px] font-black text-green-400 uppercase mb-1">Tỷ lệ</p>
-                                        <p className="text-4xl font-black text-green-700">{score.pct}%</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                    <button onClick={reset} className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-2">
-                                        <Icon name="refresh-ccw" size={16} /> Làm lại đề này
-                                    </button>
-                                    <button 
-                                        onClick={() => switchTest(currentTest === 1 ? 2 : 1)} 
-                                        className="px-10 py-5 bg-white text-blue-600 border-2 border-blue-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition active:scale-95"
-                                    >
-                                        Chuyển Đề {currentTest === 1 ? 2 : 1}
-                                    </button>
-                                </div>
+                            <div className="flex justify-between items-center px-4 mb-6">
+                                <button onClick={() => { if(currentIdx > 0) { setCurrentIdx(currentIdx - 1); setTypedVal(""); setShowFeedback(!!userAnswers[currentPool[currentIdx-1]?.id]); } }} disabled={currentIdx === 0} className={`flex items-center gap-2 font-black text-xs uppercase tracking-widest ${currentIdx === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-indigo-600'}`}><Icon name="arrow-left" size={16} /> Câu trước</button>
+                                <button onClick={next} disabled={!userAnswers[q.id]} className={`px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-xl ${!userAnswers[q.id] ? 'bg-slate-100 text-slate-300' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}>{currentIdx === currentPool.length - 1 ? 'Kết quả' : 'Tiếp theo'} <Icon name="arrow-right" size={16} /></button>
                             </div>
-                        )}
-                        <p className="text-center mt-8 text-gray-300 text-xs font-bold uppercase tracking-widest">© 2026 Grade 7 English Exam Prep</p>
-                    </div>
+                        </div>
+                    </main>
+                    <div className="h-1 bg-slate-100"><div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }}></div></div>
                 </div>
             );
         };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
