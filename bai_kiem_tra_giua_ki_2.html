@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Ôn Tập Tiếng Anh 7 - Giữa Kỳ II</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & Babel CDNs -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .underline-text u { text-decoration: underline; text-underline-offset: 4px; font-weight: bold; color: #1d4ed8; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // Custom Icon Component to handle Lucide in browser
+        const Icon = ({ name, size = 20, className = "" }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
+        };
+
+        const testData = {
+            1: [
+                { id: 9, type: 'pronunciation', q: "Question 9. Find the word with a different underlined sound:", options: ["c<u>y</u>cle", "tr<u>ai</u>n", "s<u>i</u>gn", "b<u>y</u>"], correct: 1, explanation: "Phần gạch chân: cycle /ai/, sign /ai/, by /ai/. Train phát âm là /ei/." },
+                { id: 10, type: 'pronunciation', q: "Question 10. Find the word with a different underlined sound:", options: ["<u>ear</u>", "id<u>ea</u>", "sh<u>are</u>", "t<u>ear</u>"], correct: 2, explanation: "ear, idea, tear phát âm là /iə/. Share phát âm là /eə/." },
+                { id: 11, type: 'grammar', q: "Question 11. Public ________ in my town is good and cheap.", options: ["travel", "tour", "transport", "visit"], correct: 2, explanation: "'Public transport' (phương tiện công cộng) là cụm từ cố định." },
+                { id: 12, type: 'grammar', q: "Question 12. For _________ , people have a feast with Turkey, cornbread and sweet potatoes.", options: ["Thanksgiving", "Easter", "Christmas", "Halloween"], correct: 0, explanation: "Gà tây (Turkey) là món đặc trưng của lễ Tạ ơn (Thanksgiving)." },
+                { id: 13, type: 'grammar', q: "Question 13. “Tom and Jerry” is an _________. Children like it very much.", options: ["horror", "animation", "documentary", "fantasy"], correct: 1, explanation: "Phim hoạt hình là 'animation'." },
+                { id: 14, type: 'grammar', q: "Question 14. You _______ wear a helmet when riding a motorbike.", options: ["can", "can’t", "must", "mustn’t"], correct: 2, explanation: "Dùng 'must' chỉ sự bắt buộc (phải đội mũ bảo hiểm)." },
+                { id: 15, type: 'grammar', q: "Question 15. The film was directed by one famous director. _____, it wasn’t a big success.", options: ["Although", "In spite of", "Despite", "However"], correct: 3, explanation: "However đứng giữa 2 câu ngăn cách bởi dấu phẩy chỉ sự đối lập." },
+                { id: 16, type: 'grammar', q: "Question 16. If people _________ the traffic laws, there are no more accidents.", options: ["agree", "take care of", "obey", "look after"], correct: 2, explanation: "Obey the laws: tuân thủ luật lệ." },
+                { id: 17, type: 'grammar', q: "Question 17. The end of the film was so _______ that many people cried.", options: ["funny", "shocking", "moving", "happy"], correct: 2, explanation: "Moving: cảm động." },
+                { id: 18, type: 'grammar', q: "Question 18. ___________Mary and Ann your students 7 years ago?", options: ["Did", "Were", "Are", "Was"], correct: 1, explanation: "Quá khứ đơn, chủ ngữ số nhiều dùng 'Were'." },
+                { id: 19, type: 'grammar', q: "Question 19. You can go when the traffic lights turn _______.", options: ["red", "yellow", "pink", "green"], correct: 3, explanation: "Đèn xanh (green) được phép đi." },
+                { id: 20, type: 'ads', q: "Question 20. We need someone to take care of a two-year-old child...", options: ["take", "look", "make", "with"], correct: 0, explanation: "Take care of: chăm sóc." },
+                { id: 21, type: 'ads', q: "Question 21. The perfect people should be kind, friendly...", options: ["will", "be", "are", "have"], correct: 1, explanation: "Sau should + V nguyên mẫu." },
+                { id: 22, type: 'ads', q: "Question 22. ...friendly and good with young children", options: ["with", "so", "but", "and"], correct: 3, explanation: "Dùng 'and' nối các tính từ bổ trợ nhau." },
+                { id: 23, type: 'reading', q: "Question 23. My family usually watch films together...", options: ["watch", "watches", "is watching", "watched"], correct: 0, explanation: "Chủ ngữ số nhiều 'family' chỉ các thành viên." },
+                { id: 33, type: 'writing', q: "Question 33. It rained hard. We went to school on time.", options: ["Although it rained hard, but we went to school on time.", "Although it rained hard, we went to school on time.", "It rained hard, and we went to school on time.", "It rained hard, so we went to school on time."], correct: 1, explanation: "Cấu trúc Although không dùng 'but'." },
+                { id: 38, type: 'rewrite', q: "Question 38. Why don’t we go to the cinema this evening? -> How about...", options: ["How about to go to the cinema?", "How about go to the cinema?", "How about going to the cinema?", "How about we go to the cinema?"], correct: 2, explanation: "How about + V-ing?" },
+                { id: 39, type: 'rewrite', q: "Question 39. I find watching comedies interesting. -> I am interested...", options: ["I am interested in watch comedies.", "I am interested in to watch comedies.", "I am interested with watching comedies.", "I am interested in watching comedies."], correct: 3, explanation: "Be interested in + V-ing." },
+                { id: 40, type: 'rewrite', q: "Question 40. He performed excellently, but he didn’t win an Oscar. (Use 'Although')", options: ["Although he performed excellently, he didn’t win an Oscar.", "Although he performed excellently, but he didn’t win.", "Although he didn't win an Oscar, he performed excellently.", "He performed excellently although he didn’t win."], correct: 0, explanation: "Mặc dù diễn hay nhưng không thắng Oscar." },
+            ],
+            2: [
+                { id: 9, type: 'pronunciation', q: "Question 9: Find the word with a different underlined sound:", options: ["f<u>i</u>ne", "th<u>i</u>n", "beh<u>i</u>nd", "n<u>i</u>ce"], correct: 1, explanation: "fine /ai/, behind /ai/, nice /ai/. Thin phát âm là /i/." },
+                { id: 10, type: 'pronunciation', q: "Question 10: Find the word with a different underlined sound:", options: ["h<u>air</u>", "f<u>air</u>", "ch<u>ai</u>n", "ch<u>air</u>"], correct: 2, explanation: "hair, fair, chair phát âm là /eə/. Chain phát âm là /ei/." },
+                { id: 11, type: 'grammar', q: "Question 11: You can go when the traffic lights turn _______.", options: ["red", "green", "pink", "yellow"], correct: 1, explanation: "Đèn xanh được đi." },
+                { id: 12, type: 'grammar', q: "Question 12: ._______ is it from the bus station to the hospital?", options: ["How much", "How long", "How far", "How often"], correct: 2, explanation: "How far hỏi khoảng cách." },
+                { id: 13, type: 'grammar', q: "Question 13: He shouldn’t drive so fast to avoid accidents.", options: ["drives", "to drive", "driving", "drive"], correct: 3, explanation: "Sau shouldn't + V nguyên mẫu." },
+                { id: 15, type: 'grammar', q: "Question 15: .___________ she has lots of money, she is very modest.", options: ["Although", "Because", "However", "Despite"], correct: 0, explanation: "Mặc dù giàu nhưng khiêm tốn." },
+                { id: 18, type: 'grammar', q: "Question 18: This is a moving film and it makes me cry a lot.", options: ["funny", "moving", "comedy", "excited"], correct: 1, explanation: "Moving: cảm động." },
+                { id: 22, type: 'ads', q: "Question 22: Walk on the pavement to avoid crowded streets!", options: ["road", "traffic signs", "pavement", "bridge"], correct: 2, explanation: "Pavement: vỉa hè." },
+                { id: 28, type: 'reading', q: "Question 28: How many people come to the Edinburgh Festival every year?", options: ["Thousand people", "Thousands of people", "Some people", "Few people"], correct: 1, explanation: "Đoạn văn: 'thousands of people'." },
+                { id: 32, type: 'reading', q: "Question 32: How much are the tickets for these performances?", options: ["Quite cheap", "Very expensive", "Not cheap", "Quite expensive"], correct: 0, explanation: "Đoạn văn: 'quite cheap'." },
+                { id: 35, type: 'rewrite', q: "Question 35. The distance from my house to my school is about five kilometres. (Use 'IT')", options: ["It is five kilometres from my house to my school.", "It is about five kilometres from my house to my school.", "It has about five kilometres...", "It is distance about five kilometres..."], correct: 1, explanation: "Cấu trúc: It is + distance + from... to..." },
+                { id: 37, type: 'rewrite', q: "Question 37. He was tired, but he still performed the lion dance. (Use 'ALTHOUGH')", options: ["Although he was tired, but he still performed.", "He was tired although he still performed.", "Although he was tired, he still performed the lion dance.", "Despite he was tired, he still performed."], correct: 2, explanation: "Although + clause, clause." },
+                { id: 40, type: 'rewrite', q: "Question 40. He performed excellently, but he didn’t win an Oscar. -> Although...", options: ["Although he performed excellently, he didn’t win an Oscar.", "Although he performed excellently, but he didn’t win.", "Although he didn't win, he performed excellently.", "Despite he performed excellently..."], correct: 0, explanation: "Mặc dù diễn hay nhưng không thắng." },
+            ]
+        };
+
+        const App = () => {
+            const [currentTest, setCurrentTest] = useState(1);
+            const [currentIdx, setCurrentIdx] = useState(0);
+            const [answers, setAnswers] = useState({});
+            const [showExp, setShowExp] = useState(false);
+            const [finished, setFinished] = useState(false);
+
+            const questions = testData[currentTest];
+            const question = questions[currentIdx];
+            const progress = ((currentIdx + 1) / questions.length) * 100;
+
+            const handleSelect = (idx) => {
+                if (answers[currentIdx]) return;
+                setAnswers({...answers, [currentIdx]: { selected: idx, isCorrect: idx === question.correct }});
+                setShowExp(true);
+            };
+
+            const next = () => {
+                if (currentIdx < questions.length - 1) {
+                    setCurrentIdx(currentIdx + 1);
+                    setShowExp(false);
+                } else {
+                    setFinished(true);
+                }
+            };
+
+            const reset = () => {
+                setAnswers({});
+                setCurrentIdx(0);
+                setShowExp(false);
+                setFinished(false);
+            };
+
+            const switchTest = (id) => {
+                setCurrentTest(id);
+                reset();
+            };
+
+            const score = useMemo(() => {
+                const correct = Object.values(answers).filter(a => a.isCorrect).length;
+                return { correct, total: questions.length, pct: Math.round((correct / questions.length) * 100) };
+            }, [answers, questions]);
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <div className="max-w-2xl mx-auto">
+                        <header className="text-center mb-8">
+                            <h1 className="text-3xl font-black text-blue-700 mb-2">ENGLISH QUIZ 7</h1>
+                            <p className="text-gray-500 font-medium">Ôn tập Giữa Học Kỳ II (Câu 9 - 40)</p>
+                            <div className="flex justify-center gap-3 mt-6">
+                                {[1, 2].map(id => (
+                                    <button 
+                                        key={id} 
+                                        onClick={() => switchTest(id)}
+                                        className={`px-6 py-2 rounded-full font-bold transition-all ${currentTest === id ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-50'}`}
+                                    >
+                                        Đề {id}
+                                    </button>
+                                ))}
+                            </div>
+                        </header>
+
+                        {!finished ? (
+                            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+                                <div className="h-2 bg-gray-100">
+                                    <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                                </div>
+                                
+                                <div className="p-6 md:p-10">
+                                    <div className="flex justify-between items-center mb-8">
+                                        <span className="text-[10px] font-black px-2 py-1 bg-blue-100 text-blue-700 rounded-md uppercase tracking-widest">{question.type}</span>
+                                        <span className="text-sm font-bold text-gray-300">CÂU {currentIdx + 1} / {questions.length}</span>
+                                    </div>
+
+                                    <h2 className="text-xl md:text-2xl font-bold mb-8 text-gray-800 leading-tight underline-text" 
+                                        dangerouslySetInnerHTML={{ __html: question.q }}>
+                                    </h2>
+
+                                    <div className="space-y-3">
+                                        {question.options.map((opt, i) => {
+                                            const hasAns = answers[currentIdx] !== undefined;
+                                            const isCorr = i === question.correct;
+                                            const isSel = answers[currentIdx]?.selected === i;
+                                            
+                                            let baseClass = "w-full flex items-center p-4 border-2 rounded-2xl text-left transition-all duration-200 ";
+                                            if (!hasAns) baseClass += "border-gray-100 hover:border-blue-300 hover:bg-blue-50 cursor-pointer";
+                                            else if (isCorr) baseClass += "border-green-500 bg-green-50 text-green-800 shadow-sm";
+                                            else if (isSel) baseClass += "border-red-500 bg-red-50 text-red-800";
+                                            else baseClass += "border-gray-50 opacity-40";
+
+                                            return (
+                                                <button key={i} onClick={() => handleSelect(i)} disabled={hasAns} className={baseClass}>
+                                                    <span className={`w-8 h-8 flex items-center justify-center rounded-full border-2 mr-4 font-black text-sm shrink-0 ${hasAns && isCorr ? 'bg-green-500 text-white border-green-500' : 'border-current'}`}>
+                                                        {String.fromCharCode(65 + i)}
+                                                    </span>
+                                                    <span className="font-semibold underline-text" dangerouslySetInnerHTML={{ __html: opt }}></span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {showExp && (
+                                        <div className="mt-8 p-5 bg-indigo-50 border border-indigo-100 rounded-2xl flex gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                                            <Icon name="lightbulb" className="text-indigo-600 shrink-0 mt-1" />
+                                            <div>
+                                                <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Giải thích</p>
+                                                <p className="text-sm text-indigo-900 font-medium leading-relaxed">{question.explanation}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center mt-10 pt-6 border-t border-gray-50">
+                                        <button 
+                                            onClick={() => {setCurrentIdx(currentIdx - 1); setShowExp(false);}}
+                                            disabled={currentIdx === 0}
+                                            className={`flex items-center gap-2 font-bold ${currentIdx === 0 ? 'text-gray-200' : 'text-gray-500 hover:text-blue-600 transition'}`}
+                                        >
+                                            <Icon name="chevron-left" /> Trước
+                                        </button>
+
+                                        <button 
+                                            onClick={next}
+                                            disabled={!answers[currentIdx]}
+                                            className={`px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-2 transition-all shadow-xl active:scale-95 ${!answers[currentIdx] ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                        >
+                                            {currentIdx === questions.length - 1 ? 'Kết quả' : 'Tiếp theo'} <Icon name="chevron-right" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-3xl shadow-2xl p-10 text-center border border-gray-100">
+                                <div className="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                                    <Icon name="award" size={48} />
+                                </div>
+                                <h2 className="text-4xl font-black text-gray-800 mb-2">HOÀN THÀNH!</h2>
+                                <p className="text-gray-400 font-bold mb-8">Bạn đã hoàn tất Đề {currentTest}</p>
+
+                                <div className="grid grid-cols-2 gap-4 mb-10">
+                                    <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                                        <p className="text-[10px] font-black text-blue-400 uppercase mb-1">Kết quả</p>
+                                        <p className="text-4xl font-black text-blue-700">{score.correct}/{score.total}</p>
+                                    </div>
+                                    <div className="bg-green-50 p-6 rounded-2xl border border-green-100">
+                                        <p className="text-[10px] font-black text-green-400 uppercase mb-1">Tỷ lệ</p>
+                                        <p className="text-4xl font-black text-green-700">{score.pct}%</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    <button onClick={reset} className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-blue-700 transition active:scale-95 flex items-center justify-center gap-2">
+                                        <Icon name="refresh-ccw" size={16} /> Làm lại đề này
+                                    </button>
+                                    <button 
+                                        onClick={() => switchTest(currentTest === 1 ? 2 : 1)} 
+                                        className="px-10 py-5 bg-white text-blue-600 border-2 border-blue-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition active:scale-95"
+                                    >
+                                        Chuyển Đề {currentTest === 1 ? 2 : 1}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        <p className="text-center mt-8 text-gray-300 text-xs font-bold uppercase tracking-widest">© 2026 Grade 7 English Exam Prep</p>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
