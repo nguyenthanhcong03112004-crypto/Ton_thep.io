@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buổi 1: Word Form & Cấu Trúc Câu | English Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            --secondary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .main-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding-bottom: 3rem;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .card-modern {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* --- Quiz UI Enhancements --- */
+        .quiz-option {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        .quiz-option:hover {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        .quiz-option.selected {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            position: relative;
+        }
+        .quiz-option.selected::after {
+            content: '\f058'; /* Check icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            color: #3b82f6;
+        }
+        .quiz-option.correct {
+            background-color: #ecfdf5;
+            border-color: #10b981;
+        }
+        .quiz-option.correct::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            color: #10b981;
+        }
+        .quiz-option.incorrect {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+        }
+        .quiz-option.incorrect::after {
+            content: '\f00d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            color: #ef4444;
+        }
+
+        /* --- Navigator Styles --- */
+        .navigator-button {
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .navigator-button.active-question {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* --- FLASHCARD STYLES --- */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 300px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .flashcard-container.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .flashcard-front {
+            background-color: #ffffff;
+            color: #1f2937;
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #92400e;
+            transform: rotateY(180deg);
+            overflow-y: auto;
+        }
+        
+        .flashcard-back::-webkit-scrollbar {
+            width: 6px;
+        }
+        .flashcard-back::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .topic-btn {
+            transition: all 0.3s;
+        }
+        .topic-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+        }
+        
+        .highlight-keyword {
+            color: #db2777;
+            font-weight: 800;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header Section -->
+    <div class="main-header mb-8 pt-8 px-4 text-center">
+        <div class="container mx-auto">
+            <div class="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
+                <i class="fas fa-book-open text-3xl text-yellow-300 mr-3"></i>
+                <span class="text-white font-bold tracking-wide uppercase text-sm">TOEIC PART 5</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 drop-shadow-md">Ôn Tập Buổi 1: Word Form</h1>
+            <p class="text-blue-100 text-lg max-w-2xl mx-auto font-medium">Nắm vững 3 cấu trúc câu cơ bản, từ loại (N, Adj, Adv), giới từ và luyện tập phân biệt đuôi từ với 100 câu trắc nghiệm.</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 pb-12">
+        <!-- Main Grid Layout -->
+        <main class="flex flex-col lg:flex-row gap-8 items-start">
+            
+            <!-- LEFT COLUMN: Navigator & Notes -->
+            <div class="w-full lg:w-1/4 order-2 lg:order-1 relative">
+                <div class="sticky top-6 flex flex-col gap-6">
+                    
+                    <!-- Notes Section -->
+                    <div class="card-modern p-5 border-l-4 border-yellow-400">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-sticky-note text-yellow-500 mr-2"></i> Ghi Chú Của Bạn
+                        </h2>
+                        <div id="general-message-box" class="message-box hidden text-sm p-2 mb-2 rounded bg-blue-100 text-blue-700"></div>
+                        <textarea id="noteTextarea" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent h-40 resize-y text-sm bg-yellow-50" placeholder="Ghi chú lại những từ vựng hoặc cấu trúc hay sai vào đây..."></textarea>
+                        <div class="flex gap-2 mt-3">
+                            <button id="saveNoteBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow-md">
+                                <i class="fas fa-save"></i> Lưu
+                            </button>
+                            <button id="exportNoteBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow-md">
+                                <i class="fas fa-download"></i> Tải (Word)
+                            </button>
+                        </div>
+                        <div id="savedNotes" class="mt-4 max-h-[150px] overflow-y-auto custom-scrollbar">
+                            <ul id="noteList" class="space-y-2 text-sm"><li class="text-gray-400 text-center italic">Chưa có ghi chú.</li></ul>
+                        </div>
+                    </div>
+
+                    <!-- Question Navigator -->
+                    <div class="card-modern p-5">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-th text-blue-500 mr-2"></i> Tiến Độ
+                        </h2>
+                        <div id="question-navigator" class="grid grid-cols-5 gap-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
+                            <!-- Buttons injected via JS -->
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500 flex justify-between">
+                            <span><span class="w-3 h-3 bg-green-200 inline-block rounded-full mr-1"></span>Đúng</span>
+                            <span><span class="w-3 h-3 bg-red-200 inline-block rounded-full mr-1"></span>Sai</span>
+                            <span><span class="w-3 h-3 bg-blue-500 inline-block rounded-full mr-1"></span>Đang làm</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Content (Quiz & Theory) -->
+            <div class="w-full lg:w-3/4 flex flex-col gap-8 order-1 lg:order-2">
+                
+                <!-- SECTION 1: QUIZ PRACTICE -->
+                <section id="quiz-section" class="card-modern p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-pencil-alt text-indigo-500 mr-3"></i> Luyện Tập Word Form
+                        </h2>
+                        <div class="text-sm font-semibold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">
+                            Câu <span id="current-question">1</span>/<span id="total-questions-quiz">100</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Area -->
+                    <div id="question-container" class="min-h-[80px] mb-6">
+                        <p class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed animate-fade-in" id="quiz-question">Đang tải dữ liệu...</p>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <!-- Options injected via JS -->
+                    </div>
+
+                    <!-- Feedback Area -->
+                    <div id="quiz-feedback" class="mb-6">
+                        <div id="result-message" class="hidden p-3 rounded-lg font-bold text-center mb-2 animate-fade-in"></div>
+                        <div id="explanation-text" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg text-gray-700 animate-fade-in text-sm md:text-base"></div>
+                        <div id="hint-text" class="hidden mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center italic text-sm animate-fade-in"></div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start border-t border-gray-100 pt-6">
+                        <button id="submit-answer-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform active:scale-95">
+                            Kiểm Tra
+                        </button>
+                        <button id="next-quiz-btn" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition transform active:scale-95">
+                            Câu Tiếp Theo <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                        <button id="hint-btn" class="bg-amber-400 hover:bg-amber-500 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition transform active:scale-95">
+                            <i class="far fa-lightbulb mr-2"></i> Gợi Ý
+                        </button>
+                        <button id="reset-quiz-btn" class="hidden bg-gray-500 hover:bg-gray-600 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition">
+                            <i class="fas fa-redo mr-2"></i> Làm Lại
+                        </button>
+                         <div class="flex-grow"></div>
+                        <button id="export-results-btn" class="text-indigo-600 hover:text-indigo-800 font-bold py-2 px-4 rounded-lg transition text-sm">
+                            <i class="fas fa-file-export mr-1"></i> Xuất Kết Quả
+                        </button>
+                    </div>
+                    
+                    <!-- Score -->
+                    <div class="mt-4 text-center md:text-right text-gray-500 font-semibold">
+                        Điểm số hiện tại: <span id="quiz-score" class="text-indigo-600 text-xl">0</span>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: THEORY FLASHCARDS -->
+                <section id="theory-section" class="card-modern p-6 md:p-8 bg-gradient-to-br from-white to-gray-50">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-layer-group text-emerald-500 mr-3"></i> Flashcard Lý Thuyết
+                        </h2>
+                        <div class="relative w-full md:w-auto">
+                            <select id="topic-selector" class="w-full md:w-64 p-2.5 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-gray-700">
+                                <!-- Options injected via JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard UI -->
+                    <div class="relative max-w-2xl mx-auto">
+                        <div class="flashcard-container mb-6" id="flashcard">
+                            <div class="flashcard-inner">
+                                <div class="flashcard-front">
+                                    <div class="text-4xl text-emerald-100 mb-4"><i class="fas fa-question-circle"></i></div>
+                                    <h3 id="card-front-text" class="text-2xl font-bold text-gray-800 mb-2">Chọn chủ đề để bắt đầu</h3>
+                                    <p class="text-gray-500 text-sm">(Nhấn để lật thẻ)</p>
+                                </div>
+                                <div class="flashcard-back">
+                                    <h3 class="text-lg font-bold text-amber-700 border-b border-amber-200 pb-2 mb-3 w-full text-center">Kiến Thức Cần Nhớ</h3>
+                                    <div id="card-back-content" class="text-left w-full text-gray-800 space-y-2">
+                                        <!-- Content goes here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                            <button id="prev-card-btn" class="p-3 rounded-full hover:bg-gray-100 text-gray-600 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                                <i class="fas fa-chevron-left text-xl"></i>
+                            </button>
+                            <div class="text-center">
+                                <span id="card-counter" class="font-bold text-gray-700 text-lg">0 / 0</span>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider">Thẻ ghi nhớ</p>
+                            </div>
+                            <button id="next-card-btn" class="p-3 rounded-full hover:bg-gray-100 text-gray-600 transition disabled:opacity-30 disabled:cursor-not-allowed">
+                                <i class="fas fa-chevron-right text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <footer class="text-center text-gray-400 text-sm mt-12 pb-8 border-t border-gray-200 pt-8">
+            <p>&copy; 2024 English Grammar Master. Thiết kế bám sát tài liệu Word Form Buổi 1.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DATA SECTION: QUIZ QUESTIONS (Dựa theo Buổi 1 + Mở rộng 40 câu nhận biết đuôi) ---
+        const quizQuestions = [
+            // 1. Cấu trúc câu cơ bản (S + tobe + adj / S + V + N)
+            { type: "structure", question: "1. The weather today ___________ very cold.", options: ["A. is", "B. are", "C. do", "D. does"], answer: "A", explanation: "Cấu trúc 'cái gì như thế nào': S + tobe + adj. Chủ ngữ 'The weather' (số ít) -> tobe là 'is'.", highlight: "___________" },
+            { type: "structure", question: "2. The manager ___________ the documents carefully.", options: ["A. review", "B. reviews", "C. reviewing", "D. is review"], answer: "B", explanation: "Cấu trúc 'ai làm gì': S + V + N. Chủ ngữ 'The manager' (số ít) -> Động từ thêm 's'.", highlight: "___________" },
+            { type: "structure", question: "3. This machine ___________ useful for our project.", options: ["A. look", "B. be", "C. is", "D. having"], answer: "C", explanation: "Cấu trúc S + tobe + adj. 'useful' là tính từ nên cần tobe 'is' đi với 'This machine'.", highlight: "___________" },
+            { type: "structure", question: "4. Our team ___________ a lot of homework every day.", options: ["A. do", "B. does", "C. is", "D. are"], answer: "B", explanation: "S + V + N. 'Our team' coi như một tập thể/số ít -> does.", highlight: "___________" },
+            { type: "structure", question: "5. Information ___________ power.", options: ["A. are", "B. is", "C. has", "D. do"], answer: "B", explanation: "Cấu trúc định nghĩa S + tobe + N. 'Information' là N không đếm được -> tobe số ít 'is'.", highlight: "___________" },
+
+            // 2. Linking Verbs (Động từ tri giác + adj)
+            { type: "linking_verb", question: "6. She ___________ beautiful in that dress.", options: ["A. look", "B. looking", "C. looks", "D. to look"], answer: "C", explanation: "Cấu trúc S + look + adj. Chủ ngữ 'She' -> looks.", highlight: "___________" },
+            { type: "linking_verb", question: "7. The soup ___________ really good.", options: ["A. smells", "B. smell", "C. smelling", "D. is smell"], answer: "A", explanation: "Động từ giác quan: smell + adj (ngửi có mùi gì). Chủ ngữ số ít -> smells.", highlight: "___________" },
+            { type: "linking_verb", question: "8. I ___________ tired after working all day.", options: ["A. feel", "B. feeling", "C. feels", "D. am feel"], answer: "A", explanation: "Động từ giác quan: feel + adj (cảm thấy). Chủ ngữ 'I' -> feel.", highlight: "___________" },
+            { type: "linking_verb", question: "9. The plan ___________ interesting.", options: ["A. hear", "B. sound", "C. sounds", "D. listen"], answer: "C", explanation: "Sound + adj (Nghe có vẻ). 'The plan' số ít -> sounds.", highlight: "___________" },
+            { type: "linking_verb", question: "10. Please ___________ calm during the emergency.", options: ["A. stay", "B. to stay", "C. staying", "D. stays"], answer: "A", explanation: "Stay/Keep/Remain + adj (giữ trạng thái). Câu mệnh lệnh bắt đầu bằng V nguyên thể.", highlight: "___________" },
+
+            // 3. Word Form: Tính từ (Adj Suffixes: tive, ful, al, able, ic)
+            { type: "word_form_adj", question: "11. The marketing team came up with a ___________ idea.", options: ["A. create", "B. creation", "C. creative", "D. creatively"], answer: "C", explanation: "Trước danh từ 'idea' cần 1 tính từ (adj + N). Đuôi '-tive' mang tính chất -> creative (sáng tạo).", highlight: "___________" },
+            { type: "word_form_adj", question: "12. The park in the city is very ___________.", options: ["A. beauty", "B. beautiful", "C. beautifully", "D. beautify"], answer: "B", explanation: "Sau tobe 'is' và trạng từ 'very' cần tính từ. Đuôi '-ful' (đầy) -> beautiful.", highlight: "___________" },
+            { type: "word_form_adj", question: "13. They use 100% ___________ ingredients.", options: ["A. nature", "B. naturally", "C. natural", "D. naturals"], answer: "C", explanation: "Trước danh từ 'ingredients' cần tính từ. Đuôi '-al' (thuộc về) -> natural (thuộc về tự nhiên).", highlight: "___________" },
+            { type: "word_form_adj", question: "14. The CEO's speech was very ___________.", options: ["A. hero", "B. heroic", "C. heroism", "D. heroically"], answer: "B", explanation: "Sau tobe và 'very' cần tính từ. Đuôi '-ic' (mang tính) -> heroic.", highlight: "___________" },
+            { type: "word_form_adj", question: "15. Is this report ___________ by everyone?", options: ["A. understand", "B. understandably", "C. understanding", "D. understandable"], answer: "D", explanation: "Sau tobe 'Is' cần tính từ. Đuôi '-able' (có thể) -> understandable (có thể hiểu được).", highlight: "___________" },
+            { type: "word_form_adj", question: "16. This tool is very ___________ for fixing cars.", options: ["A. use", "B. useful", "C. usefully", "D. uselessness"], answer: "B", explanation: "Đuôi '-ful' -> useful (hữu ích). Đứng sau tobe và 'very'.", highlight: "___________" },
+            { type: "word_form_adj", question: "17. The instructions must be ___________.", options: ["A. clear", "B. clearly", "C. clearness", "D. clearify"], answer: "A", explanation: "Sau tobe 'must be' cần một tính từ -> clear.", highlight: "___________" },
+            { type: "word_form_adj", question: "18. He is a very ___________ runner.", options: ["A. fast", "B. fastly", "C. faster", "D. fastest"], answer: "A", explanation: "Trước danh từ 'runner' cần tính từ. 'fast' vừa là tính từ vừa là trạng từ (không có fastly).", highlight: "___________" },
+            { type: "word_form_adj", question: "19. The task is quite ___________.", options: ["A. repeat", "B. repetition", "C. repetitive", "D. repetitively"], answer: "C", explanation: "Sau tobe 'is' và trạng từ 'quite' (khá) cần tính từ. Đuôi '-tive' -> repetitive (mang tính lặp lại).", highlight: "___________" },
+            { type: "word_form_adj", question: "20. The sky is so ___________ today.", options: ["A. blue", "B. bluely", "C. blueness", "D. blues"], answer: "A", explanation: "Màu sắc (blue, red...) đóng vai trò là tính từ. Đứng sau tobe.", highlight: "___________" },
+
+            // 4. Word Form: Danh từ (Noun Suffixes: er/or/ist/ant, ment/tion/ness/ity)
+            { type: "word_form_noun", question: "21. She is a great ___________.", options: ["A. teach", "B. teaching", "C. teacher", "D. taught"], answer: "C", explanation: "Sau mạo từ 'a' + tính từ 'great' cần danh từ chỉ người. V + er -> teacher.", highlight: "___________" },
+            { type: "word_form_noun", question: "22. The company is looking for a graphic ___________.", options: ["A. design", "B. designer", "C. designing", "D. designed"], answer: "B", explanation: "Cần danh từ chỉ người thực hiện hành động thiết kế -> designer.", highlight: "___________" },
+            { type: "word_form_noun", question: "23. We need an expert ___________ to check the books.", options: ["A. account", "B. accounting", "C. accountant", "D. accounted"], answer: "C", explanation: "Đuôi '-ant' chỉ người -> accountant (kế toán viên).", highlight: "___________" },
+            { type: "word_form_noun", question: "24. Please contact the ___________ at the front desk.", options: ["A. reception", "B. receptionist", "C. receive", "D. receptive"], answer: "B", explanation: "Đuôi '-ist' chỉ người -> receptionist (nhân viên lễ tân).", highlight: "___________" },
+            { type: "word_form_noun", question: "25. Money cannot buy true ___________.", options: ["A. happy", "B. happily", "C. happiness", "D. happiest"], answer: "C", explanation: "Cần một danh từ làm tân ngữ. Adj + ness -> Noun. Happiness (niềm hạnh phúc).", highlight: "___________" },
+            { type: "word_form_noun", question: "26. I read some interesting ___________ in the newspaper.", options: ["A. inform", "B. informative", "C. information", "D. informatively"], answer: "C", explanation: "Sau tính từ 'interesting' cần danh từ. Đuôi '-tion' -> information.", highlight: "___________" },
+            { type: "word_form_noun", question: "27. The ___________ of the new product was a success.", options: ["A. develop", "B. developing", "C. development", "D. developer"], answer: "C", explanation: "The + N1 + of + N2. Cần danh từ vật ở đây. Đuôi '-ment' -> development.", highlight: "___________" },
+            { type: "word_form_noun", question: "28. The local ___________ supports the project.", options: ["A. commune", "B. community", "C. communal", "D. communally"], answer: "B", explanation: "Sau tính từ 'local' cần danh từ. Đuôi '-ity' -> community (cộng đồng).", highlight: "___________" },
+            { type: "word_form_noun", question: "29. It is important to have self-___________.", options: ["A. confident", "B. confidently", "C. confidence", "D. confide"], answer: "C", explanation: "Sau giới từ/động từ have cần danh từ. Đuôi '-ce' -> confidence (sự tự tin).", highlight: "___________" },
+            { type: "word_form_noun", question: "30. He is a famous ___________.", options: ["A. act", "B. action", "C. actor", "D. actively"], answer: "C", explanation: "Sau mạo từ 'a' + tính từ 'famous' cần danh từ chỉ người. Đuôi '-or' -> actor.", highlight: "___________" },
+
+            // 5. Cụm danh từ (Noun phrases: adj + N, N + N, The N1 of N2)
+            { type: "noun_phrase", question: "31. She is a ___________ girl.", options: ["A. beauty", "B. beautiful", "C. beautifully", "D. beautify"], answer: "B", explanation: "Quy tắc: Adj + N = Cụm danh từ (beautiful girl).", highlight: "___________" },
+            { type: "noun_phrase", question: "32. I went to the ___________ store to buy food for my dog.", options: ["A. pet", "B. pets", "C. pet's", "D. petting"], answer: "A", explanation: "Danh từ ghép: N + N = N2 (cửa hàng thú cưng -> pet store). Từ ghép điểm cuối mới có s/es.", highlight: "___________" },
+            { type: "noun_phrase", question: "33. The colors of the ___________ are fading.", options: ["A. build", "B. building", "C. built", "D. builder"], answer: "B", explanation: "The N1 of N2. Sau 'the' cần danh từ (building).", highlight: "___________" },
+            { type: "noun_phrase", question: "34. ___________ football is interesting.", options: ["A. Play", "B. Played", "C. Playing", "D. Player"], answer: "C", explanation: "Quy tắc V-ing + N = Cụm danh từ làm chủ ngữ. Việc chơi bóng đá -> Playing football.", highlight: "___________" },
+            { type: "noun_phrase", question: "35. The quality of the products ___________ improved.", options: ["A. has", "B. have", "C. is", "D. are"], answer: "A", explanation: "The N1 of N2 -> Chia động từ theo N1 (The quality - số ít) -> has.", highlight: "___________" },
+
+            // 6. Giới từ cơ bản (to V, in/on/at, by/with/from)
+            { type: "preposition", question: "36. I study hard ___________ pass the exam.", options: ["A. in", "B. on", "C. for", "D. to"], answer: "D", explanation: "to + V(0): để làm gì đó.", highlight: "___________" },
+            { type: "preposition", question: "37. He travels ___________ Thailand every summer.", options: ["A. in", "B. at", "C. to", "D. for"], answer: "C", explanation: "travel/go/come + to + địa điểm: đi tới đâu.", highlight: "___________" },
+            { type: "preposition", question: "38. I learn English ___________ reading books.", options: ["A. in", "B. on", "C. by", "D. at"], answer: "C", explanation: "by/from + V-ing: Bằng cách làm gì đó.", highlight: "___________" },
+            { type: "preposition", question: "39. She goes to the library ___________ her friends.", options: ["A. by", "B. with", "C. for", "D. from"], answer: "B", explanation: "with + người: làm cùng với ai.", highlight: "___________" },
+            { type: "preposition", question: "40. My father goes to work ___________ car.", options: ["A. on", "B. in", "C. with", "D. by"], answer: "D", explanation: "By + phương tiện: đi bằng xe gì (by car).", highlight: "___________" },
+            { type: "preposition", question: "41. I will see you ___________ Monday.", options: ["A. in", "B. at", "C. on", "D. by"], answer: "C", explanation: "On + Thứ trong tuần (Monday).", highlight: "___________" },
+            { type: "preposition", question: "42. The meeting starts ___________ 8 a.m.", options: ["A. in", "B. at", "C. on", "D. to"], answer: "B", explanation: "At + Giờ cụ thể (8 a.m).", highlight: "___________" },
+            { type: "preposition", question: "43. We always go on holiday ___________ summer.", options: ["A. in", "B. at", "C. on", "D. from"], answer: "A", explanation: "In + Mùa (summer).", highlight: "___________" },
+            { type: "preposition", question: "44. She is currently working ___________ the hospital.", options: ["A. in", "B. on", "C. by", "D. with"], answer: "A", explanation: "In + địa điểm công cộng/không gian rộng (hospital).", highlight: "___________" },
+            { type: "preposition", question: "45. I do everything ___________ my mom.", options: ["A. from", "B. for", "C. to", "D. in"], answer: "B", explanation: "For + người: làm vì ai, cho ai.", highlight: "___________" },
+
+            // 7. Mệnh đề + Giới từ + V-ing
+            { type: "gerund_prep", question: "46. He is interested ___________ learning Japanese.", options: ["A. on", "B. in", "C. at", "D. with"], answer: "B", explanation: "Cấu trúc interested in + V-ing/N.", highlight: "___________" },
+            { type: "gerund_prep", question: "47. I want to study ___________ watching movies.", options: ["A. by", "B. in", "C. on", "D. to"], answer: "A", explanation: "by + V-ing: bằng cách (bằng cách xem phim).", highlight: "___________" },
+            { type: "gerund_prep", question: "48. She left ___________ saying goodbye.", options: ["A. with", "B. without", "C. from", "D. by"], answer: "B", explanation: "without + V-ing: mà không làm gì (mà không nói lời tạm biệt).", highlight: "___________" },
+
+            // 8. Trạng từ (Adverbs: Vị trí, chỉ tần suất, mức độ, cách thức)
+            { type: "adverb", question: "49. She paints ___________.", options: ["A. beautiful", "B. beauty", "C. beautifully", "D. beautify"], answer: "C", explanation: "Sau động từ thường (paint) cần Trạng từ chỉ cách thức. Adv = Adj + ly -> beautifully.", highlight: "___________" },
+            { type: "adverb", question: "50. I ___________ go to the gym on weekends.", options: ["A. usual", "B. usually", "C. unusual", "D. unusually"], answer: "B", explanation: "Trạng từ tần suất đứng trước động từ thường (go).", highlight: "___________" },
+            { type: "adverb", question: "51. He drives very ___________.", options: ["A. slow", "B. slowly", "C. slowness", "D. slower"], answer: "B", explanation: "Sau động từ thường (drive) cần trạng từ cách thức -> slowly.", highlight: "___________" },
+            { type: "adverb", question: "52. The test was ___________ difficult.", options: ["A. quiet", "B. quite", "C. quit", "D. quietly"], answer: "B", explanation: "Trạng từ chỉ mức độ đứng trước tính từ: quite (khá) + difficult. Lưu ý phân biệt quite và quiet.", highlight: "___________" },
+            { type: "adverb", question: "53. We hold meetings ___________.", options: ["A. week", "B. weeks", "C. weekly", "D. weeklyly"], answer: "C", explanation: "Trạng từ tần suất đứng cuối câu (hàng tuần) -> weekly.", highlight: "___________" },
+            { type: "adverb", question: "54. I play sports twice ___________ week.", options: ["A. a", "B. the", "C. in", "D. for"], answer: "A", explanation: "Cụm trạng từ tần suất: once/twice/three times + a + week/month/year.", highlight: "___________" },
+            { type: "adverb", question: "55. She ___________ solved the problem.", options: ["A. creative", "B. creatively", "C. creation", "D. create"], answer: "B", explanation: "Trạng từ (creatively) có thể đứng trước động từ (solved) để bổ nghĩa cho nó.", highlight: "___________" },
+
+            // 9. Câu bị động (Tobe + V-ed/3)
+            { type: "passive", question: "56. The letter ___________ by him yesterday.", options: ["A. writes", "B. wrote", "C. was written", "D. writing"], answer: "C", explanation: "Câu bị động: S + tobe + V3/ed. Bức thư 'được viết'. Quá khứ -> was written.", highlight: "___________" },
+            { type: "passive", question: "57. The house ___________ yellow.", options: ["A. paints", "B. is painted", "C. is painting", "D. painted"], answer: "B", explanation: "Bị động: Ngôi nhà 'được sơn' -> is painted.", highlight: "___________" },
+
+            // 10. Từ vựng & Trọng âm (Dựa trên note: student, clever, absent, community, engineer)
+            { type: "stress", question: "58. Which word has the stress on the FIRST syllable?", options: ["A. absent", "B. repeat", "C. decide", "D. attract"], answer: "A", explanation: "Danh từ/Tính từ 2 âm tiết thường nhấn âm 1: ab-sent. Các từ còn lại là Động từ nhấn âm 2.", highlight: "___________" },
+            { type: "stress", question: "59. Which word has the stress on the SECOND syllable?", options: ["A. student", "B. clever", "C. locate", "D. leader"], answer: "C", explanation: "Động từ 2 âm tiết (lo-cate) thường nhấn âm 2. student, clever, leader (N/Adj) nhấn âm 1.", highlight: "___________" },
+            { type: "stress", question: "60. Which word has the stress on the LAST syllable?", options: ["A. engineer", "B. beautiful", "C. community", "D. natural"], answer: "A", explanation: "Trọng âm rơi vào các nguyên âm đôi (ee, eer). engineer nhấn âm cuối.", highlight: "___________" },
+
+            // 11. BỔ SUNG: Nhận biết loại từ qua hậu tố (Suffixes)
+            { type: "suffix_id", question: "61. Từ 'government' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'government' có hậu tố '-ment' là một danh từ.", highlight: "'government'" },
+            { type: "suffix_id", question: "62. Từ 'unhappy' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'unhappy' là một tính từ (tiền tố 'un-' và gốc 'happy' là tính từ).", highlight: "'unhappy'" },
+            { type: "suffix_id", question: "63. Từ 'readable' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'readable' có hậu tố '-able' là một tính từ.", highlight: "'readable'" },
+            { type: "suffix_id", question: "64. Từ 'dependence' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'dependence' có hậu tố '-ence' là một danh từ.", highlight: "'dependence'" },
+            { type: "suffix_id", question: "65. Từ 'dangerous' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'dangerous' có hậu tố '-ous' là một tính từ.", highlight: "'dangerous'" },
+            { type: "suffix_id", question: "66. Từ 'childish' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'childish' có hậu tố '-ish' là một tính từ.", highlight: "'childish'" },
+            { type: "suffix_id", question: "67. Từ 'beautiful' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'beautiful' có hậu tố '-ful' là một tính từ.", highlight: "'beautiful'" },
+            { type: "suffix_id", question: "68. Từ 'national' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'national' có hậu tố '-al' là một tính từ.", highlight: "'national'" },
+            { type: "suffix_id", question: "69. Từ 'employee' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'employee' có hậu tố '-ee' là một danh từ chỉ người.", highlight: "'employee'" },
+            { type: "suffix_id", question: "70. Từ 'development' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'development' có hậu tố '-ment' là một danh từ.", highlight: "'development'" },
+            { type: "suffix_id", question: "71. Từ 'inactive' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'inactive' là một tính từ (tiền tố 'in-' và gốc 'active' là tính từ).", highlight: "'inactive'" },
+            { type: "suffix_id", question: "72. Từ 'valuable' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'valuable' có hậu tố '-able' là một tính từ.", highlight: "'valuable'" },
+            { type: "suffix_id", question: "73. Từ 'information' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'information' có hậu tố '-tion' là một danh từ.", highlight: "'information'" },
+            { type: "suffix_id", question: "74. Từ 'protection' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'protection' có hậu tố '-tion' là một danh từ.", highlight: "'protection'" },
+            { type: "suffix_id", question: "75. Từ 'educational' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'educational' có hậu tố '-al' là một tính từ.", highlight: "'educational'" },
+            { type: "suffix_id", question: "76. Từ 'organization' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'organization' có hậu tố '-ization' là một danh từ.", highlight: "'organization'" },
+            { type: "suffix_id", question: "77. Từ 'creation' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'creation' có hậu tố '-tion' là một danh từ.", highlight: "'creation'" },
+            { type: "suffix_id", question: "78. Từ 'magical' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'magical' có hậu tố '-al' là một tính từ.", highlight: "'magical'" },
+            { type: "suffix_id", question: "79. Từ 'communication' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'communication' có hậu tố '-tion' là một danh từ.", highlight: "'communication'" },
+            { type: "suffix_id", question: "80. Từ 'reasonable' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'reasonable' có hậu tố '-able' là một tính từ.", highlight: "'reasonable'" },
+            { type: "suffix_id", question: "81. Từ 'darkness' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'darkness' có hậu tố '-ness' là một danh từ.", highlight: "'darkness'" },
+            { type: "suffix_id", question: "82. Từ 'sensible' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'sensible' có hậu tố '-ible' là một tính từ.", highlight: "'sensible'" },
+            { type: "suffix_id", question: "83. Từ 'improvement' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'improvement' có hậu tố '-ment' là một danh từ.", highlight: "'improvement'" },
+            { type: "suffix_id", question: "84. Từ 'courageous' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'courageous' có hậu tố '-ous' là một tính từ.", highlight: "'courageous'" },
+            { type: "suffix_id", question: "85. Từ 'generosity' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'generosity' có hậu tố '-ity' là một danh từ.", highlight: "'generosity'" },
+            { type: "suffix_id", question: "86. Từ 'critical' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'critical' có hậu tố '-ical' là một tính từ.", highlight: "'critical'" },
+            { type: "suffix_id", question: "87. Từ 'reality' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'reality' có hậu tố '-ity' là một danh từ.", highlight: "'reality'" },
+            { type: "suffix_id", question: "88. Từ 'powerful' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'powerful' có hậu tố '-ful' là một tính từ.", highlight: "'powerful'" },
+            { type: "suffix_id", question: "89. Từ 'solution' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'solution' có hậu tố '-tion' là một danh từ.", highlight: "'solution'" },
+            { type: "suffix_id", question: "90. Từ 'careful' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'careful' có hậu tố '-ful' là một tính từ.", highlight: "'careful'" },
+            { type: "suffix_id", question: "91. Từ 'collection' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'collection' có hậu tố '-tion' là một danh từ.", highlight: "'collection'" },
+            { type: "suffix_id", question: "92. Từ 'imaginative' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'imaginative' có hậu tố '-ive' là một tính từ.", highlight: "'imaginative'" },
+            { type: "suffix_id", question: "93. Từ 'friendship' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'friendship' có hậu tố '-ship' là một danh từ.", highlight: "'friendship'" },
+            { type: "suffix_id", question: "94. Từ 'acceptable' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'acceptable' có hậu tố '-able' là một tính từ.", highlight: "'acceptable'" },
+            { type: "suffix_id", question: "95. Từ 'comfort' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'comfort' là một danh từ.", highlight: "'comfort'" },
+            { type: "suffix_id", question: "96. Từ 'effective' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'effective' có hậu tố '-ive' là một tính từ.", highlight: "'effective'" },
+            { type: "suffix_id", question: "97. Từ 'difference' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'difference' có hậu tố '-ence' là một danh từ.", highlight: "'difference'" },
+            { type: "suffix_id", question: "98. Từ 'economic' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'economic' có hậu tố '-ic' là một tính từ.", highlight: "'economic'" },
+            { type: "suffix_id", question: "99. Từ 'assistance' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "A", explanation: "Từ 'assistance' có hậu tố '-ance' là một danh từ.", highlight: "'assistance'" },
+            { type: "suffix_id", question: "100. Từ 'famous' thuộc loại từ gì?", options: ["A. Danh từ", "B. Tính từ", "C. Động từ", "D. Trạng từ"], answer: "B", explanation: "Từ 'famous' có hậu tố '-ous' là một tính từ.", highlight: "'famous'" }
+        ];
+
+        // --- DATA SECTION: THEORY FLASHCARDS (Dựa theo Buổi 1) ---
+        const theoryData = {
+            "cau_truc_cau": {
+                title: "3 Cấu Trúc Câu Cơ Bản",
+                cards: [
+                    { front: "Cấu trúc: Ai làm gì?", back: "<div class='text-left'><b>Công thức:</b> S + V + N<br>Chủ ngữ + Động từ (chỉ hành động) + Tân ngữ<br><br><b>Ví dụ:</b><br>- I do homework.<br>- She learns English.</div>" },
+                    { front: "Cấu trúc: Cái gì như thế nào?", back: "<div class='text-left'><b>Công thức:</b> S + tobe + adj<br>Dùng để miêu tả tính chất, trạng thái.<br><br><b>Ví dụ:</b><br>- He is fast.<br>- She is beautiful.<br>- The house is red.</div>" },
+                    { front: "Cấu trúc: Định nghĩa / Giới thiệu", back: "<div class='text-left'><b>Công thức:</b> S + tobe + N<br>Dùng để giới thiệu (tên, tuổi) hoặc định nghĩa.<br><br><b>Ví dụ:</b><br>- My name is Phuong.<br>- She is a doctor.<br>- Information is power.</div>" },
+                    { front: "Cấu trúc Câu Bị Động", back: "<div class='text-left'><b>Công thức:</b> S + tobe + V-ed/3<br>Động từ ở dạng quá khứ phân từ.<br><br><b>Ví dụ:</b><br>- The house is painted yellow. (Ngôi nhà được sơn màu vàng)</div>" }
+                ]
+            },
+            "word_form_adj": {
+                title: "Nhận biết Tính Từ (Adj)",
+                cards: [
+                    { front: "Vị trí của Tính từ", back: "<div class='text-left'>1. Đứng sau động từ <b>tobe</b> (is, am, are, was...)<br>2. Đứng trước <b>Danh từ</b> (Adj + N)<br>3. Sau trạng từ chỉ mức độ (very, quite)</div>" },
+                    { front: "Đuôi Tính từ: -tive / -ic", back: "<div class='text-left'><b>Ý nghĩa:</b> Mang tính chất gì đó.<br><br>- create (tạo) -> <b>creative</b> (sáng tạo)<br>- repeat (lặp) -> <b>repetitive</b> (tính lặp lại)<br>- hero (anh hùng) -> <b>heroic</b></div>" },
+                    { front: "Đuôi Tính từ: -ful / -al", back: "<div class='text-left'><b>-ful</b> (Đầy): beauty -> <b>beautiful</b> (đầy vẻ đẹp/xinh đẹp), use -> <b>useful</b> (hữu ích).<br><br><b>-al</b> (Thuộc về): nature -> <b>natural</b> (thuộc về thiên nhiên).</div>" },
+                    { front: "Đuôi Tính từ: -able", back: "<div class='text-left'><b>Ý nghĩa:</b> Có thể làm gì đó.<br><br>- read -> <b>readable</b> (có thể đọc được)<br>- understand -> <b>understandable</b> (có thể hiểu được)</div>" },
+                    { front: "Động từ giác quan + Adj<br>(Linking Verbs)", back: "<div class='text-left'>Không dùng Trạng từ mà dùng <b>Tính từ</b> sau các từ:<br>- <b>look</b> (nhìn có vẻ)<br>- <b>smell</b> (ngửi có mùi)<br>- <b>feel</b> (cảm thấy)<br>- <b>sound / hear</b> (nghe có vẻ)<br>- <b>taste</b> (nếm)<br><br>VD: It sounds interesting. I feel tired.</div>" },
+                    { front: "Động từ trạng thái + Adj", back: "<div class='text-left'>Các động từ chỉ sự giữ nguyên hoặc trở thành:<br>- remain<br>- appear<br>- get<br>- stay<br>- keep<br>- become<br><br>VD: Please <b>stay calm</b>.</div>" }
+                ]
+            },
+            "word_form_noun": {
+                title: "Nhận biết Danh Từ (Noun)",
+                cards: [
+                    { front: "Đuôi Danh từ chỉ Người", back: "<div class='text-left'>Động từ (V) + er/or/ant/ist -> Người thực hiện hành động.<br><br>- teach -> <b>teacher</b> (giáo viên)<br>- design -> <b>designer</b><br>- account -> <b>accountant</b> (kế toán)<br>- reception -> <b>receptionist</b> (lễ tân)</div>" },
+                    { front: "Đuôi Danh từ chỉ Vật", back: "<div class='text-left'>Thường có các đuôi:<br>- <b>ment</b>: development<br>- <b>tion</b>: information<br>- <b>ce</b>: confidence<br>- <b>ity</b>: community<br>- <b>ness</b> (Adj + ness -> N): happy -> happiness</div>" },
+                    { front: "Cụm Danh Từ", back: "<div class='text-left'><b>1. Adj + N = N2</b><br>VD: beautiful girl<br><br><b>2. N + N = N2</b> (Điểm cuối mới có s/es)<br>VD: pet store, music box<br><br><b>3. V-ing + N = N2</b><br>VD: Playing football is interesting.</div>" },
+                    { front: "Cấu trúc The N of N", back: "<div class='text-left'><b>The N(1) of N(2)</b> hoặc <b>N(1) in N(2)</b><br>Động từ phía sau sẽ chia theo danh từ chính là <b>N(1)</b>.<br><br>VD: The <u>quality</u> of the products <u>is</u> good.</div>" }
+                ]
+            },
+            "adverbs": {
+                title: "Nhận biết Trạng Từ (Adv)",
+                cards: [
+                    { front: "Đuôi và Cách tạo Trạng từ", back: "<div class='text-left'><b>Adj + ly = Adv</b><br>Mang nghĩa 'một cách như thế nào đó'.<br><br>VD: beautiful -> beautifully (một cách xinh đẹp).<br><br><i>Lưu ý:</i> Một số từ không có đuôi ly (fast, hard, well).</div>" },
+                    { front: "Vị trí của Trạng từ", back: "<div class='text-left'>- Đứng ở đầu câu hoặc cuối câu.<br>- Đứng <b>trước</b> động từ thường.<br>- Đứng <b>trước</b> tính từ (bổ nghĩa cho tính từ: very, quite, so).<br><br>VD: She is <b>so</b> beautiful.<br>VD: I <b>often</b> go to school.</div>" },
+                    { front: "Trạng từ chỉ tần suất", back: "<div class='text-left'>- usually, often, typically, normally<br>- sometimes, rarely, seldom, never<br><br><b>Chu kỳ:</b><br>- weekly, monthly, yearly (annually)<br>- once/twice + a + week/month/year<br>- 3/4/5 times + a + week/month/year</div>" }
+                ]
+            },
+            "prepositions": {
+                title: "Giới Từ Cơ Bản (Prepositions)",
+                cards: [
+                    { front: "to V / to N", back: "<div class='text-left'><b>1. to + V(0):</b> Để làm gì đó.<br>VD: I study to do homework.<br><br><b>2. go/come/travel + to + Địa điểm:</b> Tới đâu.<br>VD: I travel to Thailand.</div>" },
+                    { front: "by / with / from / for", back: "<div class='text-left'>- <b>with + người:</b> làm với ai<br>- <b>with + vật:</b> bằng công cụ gì<br>- <b>for + người:</b> cho ai đó<br>- <b>from/by + V-ing/N:</b> từ đâu, bằng cách nào<br>- <b>by + phương tiện:</b> by car/bus (ngoại trừ: on foot)</div>" },
+                    { front: "in / on / at (Thời gian)", back: "<div class='text-left'>- <b>In:</b> Tháng (June), Mùa (summer), Buổi (morning)<br>- <b>On:</b> Thứ (Monday), Ngày lễ có chữ Day.<br>- <b>At:</b> Giờ cụ thể (6 a.m), at the weekend, at night.</div>" },
+                    { front: "in / on / at (Địa điểm)", back: "<div class='text-left'>- <b>In:</b> Rộng lớn, công cộng (in hospital, city, park...)<br>- Quy tắc lớn nhỏ: <b>In > On > At</b>.</div>" }
+                ]
+            },
+             "pronunciation": {
+                title: "Mẹo Trọng Âm",
+                cards: [
+                    { front: "Quy tắc 2 âm tiết", back: "<div class='text-left'>- <b>Danh từ (N) / Tính từ (Adj):</b> Thường nhấn âm tiết 1.<br>VD: stu-dent (1), cle-ver (1).<br><br>- <b>Động từ (V):</b> Thường nhấn âm tiết 2.<br>VD: ab-sent (2).<br><br><i>Mẹo: Nguyên âm không được nhấn thường đọc là âm 'ơ'.</i></div>" },
+                    { front: "Đuôi 'y' & Nguyên âm đôi", back: "<div class='text-left'>- Từ kết thúc bằng <b>'y'</b> (3 âm tiết): Nhấn âm thứ 3 từ dưới lên. VD: com-<b>mu</b>-ni-ty.<br><br>- Trọng âm thường rơi thẳng vào các <b>nguyên âm đôi</b> (ee, ea, ei, oo...).<br>VD: in-<b>deed</b>, engi-<b>neer</b>.</div>" }
+                ]
+            }
+        };
+
+        // --- APP LOGIC ---
+        // Change storage key to reset progress due to new length
+        const STORAGE_KEY_QUIZ = 'wordFormQuiz_v2_State';
+        const STORAGE_KEY_NOTES = 'wordFormNotes_v2';
+
+        // Init State
+        quizQuestions.forEach(q => {
+            q.answered = false;
+            q.isCorrect = null;
+            q.userAnswer = null;
+            q.hintUsed = false;
+            if(!q.hint) q.hint = "Xem lại quy tắc cấu trúc câu, loại từ hoặc giới từ tương ứng trong Flashcard.";
+        });
+
+        let currentQuizIndex = 0;
+        let score = 0;
+        let currentFlashcardTopic = "cau_truc_cau";
+        let currentFlashcardIndex = 0;
+
+        // Elements
+        const els = {
+            quizQuestion: document.getElementById('quiz-question'),
+            quizOptions: document.getElementById('quiz-options'),
+            currentQuestionSpan: document.getElementById('current-question'),
+            totalQuestionsSpan: document.getElementById('total-questions-quiz'),
+            submitBtn: document.getElementById('submit-answer-btn'),
+            nextBtn: document.getElementById('next-quiz-btn'),
+            hintBtn: document.getElementById('hint-btn'),
+            resetBtn: document.getElementById('reset-quiz-btn'),
+            resultMsg: document.getElementById('result-message'),
+            explanation: document.getElementById('explanation-text'),
+            hintText: document.getElementById('hint-text'),
+            score: document.getElementById('quiz-score'),
+            navigator: document.getElementById('question-navigator'),
+            
+            // Flashcards
+            topicSelector: document.getElementById('topic-selector'),
+            flashcard: document.getElementById('flashcard'),
+            cardFront: document.getElementById('card-front-text'),
+            cardBack: document.getElementById('card-back-content'),
+            prevCardBtn: document.getElementById('prev-card-btn'),
+            nextCardBtn: document.getElementById('next-card-btn'),
+            cardCounter: document.getElementById('card-counter'),
+
+            // Notes
+            noteText: document.getElementById('noteTextarea'),
+            saveNoteBtn: document.getElementById('saveNoteBtn'),
+            exportNoteBtn: document.getElementById('exportNoteBtn'),
+            noteList: document.getElementById('noteList'),
+            msgBox: document.getElementById('general-message-box'),
+            exportResultBtn: document.getElementById('export-results-btn')
+        };
+
+        // Setup UI
+        els.totalQuestionsSpan.textContent = quizQuestions.length;
+
+        // --- FLASHCARD FUNCTIONS ---
+        function initFlashcards() {
+            els.topicSelector.innerHTML = '';
+            for (const [key, value] of Object.entries(theoryData)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = value.title;
+                els.topicSelector.appendChild(option);
+            }
+
+            els.topicSelector.addEventListener('change', (e) => {
+                currentFlashcardTopic = e.target.value;
+                currentFlashcardIndex = 0;
+                renderFlashcard();
+            });
+
+            els.flashcard.addEventListener('click', () => {
+                els.flashcard.classList.toggle('flipped');
+            });
+
+            els.prevCardBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (currentFlashcardIndex > 0) {
+                    currentFlashcardIndex--;
+                    renderFlashcard(true);
+                }
+            });
+
+            els.nextCardBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const topic = theoryData[currentFlashcardTopic];
+                if (currentFlashcardIndex < topic.cards.length - 1) {
+                    currentFlashcardIndex++;
+                    renderFlashcard(true);
+                }
+            });
+
+            renderFlashcard();
+        }
+
+        function renderFlashcard(resetFlip = false) {
+            if (resetFlip) els.flashcard.classList.remove('flipped');
+            
+            const topic = theoryData[currentFlashcardTopic];
+            const card = topic.cards[currentFlashcardIndex];
+            
+            setTimeout(() => {
+                els.cardFront.innerHTML = card.front;
+                els.cardBack.innerHTML = card.back;
+                els.cardCounter.textContent = `${currentFlashcardIndex + 1} / ${topic.cards.length}`;
+                
+                els.prevCardBtn.disabled = currentFlashcardIndex === 0;
+                els.nextCardBtn.disabled = currentFlashcardIndex === topic.cards.length - 1;
+            }, resetFlip ? 200 : 0);
+        }
+
+        // --- QUIZ FUNCTIONS ---
+        let selectedOptionElem = null;
+
+        function loadQuizState() {
+            const saved = localStorage.getItem(STORAGE_KEY_QUIZ);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.quizQuestionsState && parsed.quizQuestionsState.length === quizQuestions.length) {
+                        quizQuestions.forEach((q, i) => {
+                            Object.assign(q, parsed.quizQuestionsState[i]);
+                        });
+                        currentQuizIndex = parsed.currentQuizIndex;
+                        score = parsed.score;
+                    }
+                } catch(e) { console.error("Save load error", e); }
+            }
+            els.score.textContent = score;
+        }
+
+        function saveQuizState() {
+            const state = {
+                quizQuestionsState: quizQuestions,
+                currentQuizIndex,
+                score
+            };
+            localStorage.setItem(STORAGE_KEY_QUIZ, JSON.stringify(state));
+        }
+
+        function renderQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            
+            // Highlight
+            if (q.highlight) {
+                els.quizQuestion.innerHTML = q.question.replace(q.highlight, `<span class="highlight-keyword">${q.highlight}</span>`);
+            } else {
+                els.quizQuestion.textContent = q.question;
+            }
+
+            els.currentQuestionSpan.textContent = currentQuizIndex + 1;
+            els.quizOptions.innerHTML = '';
+            selectedOptionElem = null;
+
+            // Reset UI elements
+            els.resultMsg.className = 'hidden p-3 rounded-lg font-bold text-center mb-2 animate-fade-in';
+            els.explanation.className = 'hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg text-gray-700 animate-fade-in text-sm md:text-base';
+            els.hintText.classList.add('hidden');
+            
+            // Buttons logic
+            if (q.answered) {
+                els.submitBtn.classList.add('hidden');
+                els.hintBtn.classList.add('hidden');
+                els.nextBtn.classList.remove('hidden');
+                
+                // Show feedback
+                els.resultMsg.textContent = q.isCorrect ? 'Chính xác! Bạn đã nắm bài rất tốt.' : 'Sai rồi. Hãy xem lại giải thích bên dưới nhé!';
+                els.resultMsg.classList.remove('hidden');
+                els.resultMsg.classList.add(q.isCorrect ? 'bg-green-100' : 'bg-red-100', q.isCorrect ? 'text-green-700' : 'text-red-700');
+                
+                els.explanation.innerHTML = `<b>Giải thích chi tiết:</b><br>${q.explanation}`;
+                els.explanation.classList.remove('hidden');
+
+                if(currentQuizIndex === quizQuestions.length - 1) {
+                    els.nextBtn.classList.add('hidden');
+                    els.resetBtn.classList.remove('hidden');
+                }
+            } else {
+                els.submitBtn.classList.remove('hidden');
+                els.hintBtn.classList.remove('hidden');
+                els.nextBtn.classList.add('hidden');
+                els.resetBtn.classList.add('hidden');
+                
+                // Check hint
+                if(q.hintUsed) {
+                    els.hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    els.hintText.textContent = `Gợi ý: ${q.hint}`;
+                    els.hintText.classList.remove('hidden');
+                } else {
+                    els.hintBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            // Render Options
+            q.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option p-4 rounded-lg cursor-pointer bg-white border border-gray-200 shadow-sm flex items-center';
+                div.innerHTML = `<span class="font-bold mr-2 text-indigo-500">${opt.charAt(0)}</span> ${opt.substring(2)}`;
+                
+                if (q.answered) {
+                    div.style.cursor = 'default';
+                    const char = opt.charAt(0);
+                    if (char === q.answer) div.classList.add('correct');
+                    else if (char === q.userAnswer.charAt(0)) div.classList.add('incorrect');
+                } else {
+                    div.onclick = () => {
+                        if (selectedOptionElem) selectedOptionElem.classList.remove('selected');
+                        div.classList.add('selected');
+                        selectedOptionElem = div;
+                    };
+                }
+                els.quizOptions.appendChild(div);
+            });
+
+            renderNavigator();
+        }
+
+        function checkAnswer() {
+            if (!selectedOptionElem) return showMsg('Vui lòng chọn 1 đáp án!', 'error');
+            
+            const q = quizQuestions[currentQuizIndex];
+            const userText = selectedOptionElem.textContent.trim();
+            const userChar = userText.charAt(0);
+            
+            q.answered = true;
+            q.userAnswer = userText;
+            q.isCorrect = (userChar === q.answer);
+            
+            if (q.isCorrect) score++;
+            
+            els.score.textContent = score;
+            saveQuizState();
+            renderQuestion();
+        }
+
+        function renderNavigator() {
+            els.navigator.innerHTML = '';
+            quizQuestions.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'navigator-button w-full aspect-square rounded flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200';
+                btn.textContent = i + 1;
+                
+                if (i === currentQuizIndex) btn.classList.add('active-question');
+                if (q.answered) {
+                    btn.classList.add(q.isCorrect ? 'answered-correctly' : 'answered-incorrectly');
+                    if (q.isCorrect) {
+                        btn.classList.remove('bg-gray-100', 'text-gray-500');
+                        btn.classList.add('bg-green-100', 'text-green-600', 'border', 'border-green-200');
+                    } else {
+                        btn.classList.remove('bg-gray-100', 'text-gray-500');
+                        btn.classList.add('bg-red-100', 'text-red-600', 'border', 'border-red-200');
+                    }
+                }
+                
+                btn.onclick = () => {
+                    currentQuizIndex = i;
+                    renderQuestion();
+                };
+                els.navigator.appendChild(btn);
+            });
+        }
+
+        // --- UTILS ---
+        function showMsg(txt, type='info') {
+            els.msgBox.textContent = txt;
+            els.msgBox.className = `message-box text-sm p-2 mb-2 rounded border ${type === 'error' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`;
+            els.msgBox.classList.remove('hidden');
+            setTimeout(() => els.msgBox.classList.add('hidden'), 3000);
+        }
+
+        // --- NOTES ---
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem(STORAGE_KEY_NOTES)) || [];
+            els.noteList.innerHTML = notes.length ? '' : '<li class="text-gray-400 text-center italic">Chưa có ghi chú.</li>';
+            notes.forEach((n, i) => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-start bg-white p-2 rounded shadow-sm border border-gray-100';
+                li.innerHTML = `<span class="flex-1 mr-2 break-words">${n}</span><button class="text-red-400 hover:text-red-600" onclick="delNote(${i})"><i class="fas fa-times"></i></button>`;
+                els.noteList.appendChild(li);
+            });
+        }
+        window.delNote = (i) => {
+            const notes = JSON.parse(localStorage.getItem(STORAGE_KEY_NOTES)) || [];
+            notes.splice(i, 1);
+            localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes));
+            loadNotes();
+        };
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuizState();
+            renderQuestion();
+            loadNotes();
+            initFlashcards();
+            
+            els.submitBtn.onclick = checkAnswer;
+            
+            els.nextBtn.onclick = () => {
+                if (currentQuizIndex < quizQuestions.length - 1) {
+                    currentQuizIndex++;
+                    renderQuestion();
+                }
+            };
+            
+            els.hintBtn.onclick = () => {
+                const q = quizQuestions[currentQuizIndex];
+                if (!q.answered && !q.hintUsed) {
+                    q.hintUsed = true;
+                    saveQuizState();
+                    renderQuestion();
+                }
+            };
+
+            els.resetBtn.onclick = () => {
+                if(confirm('Bạn có chắc muốn xóa kết quả và làm lại từ đầu?')) {
+                    score = 0;
+                    currentQuizIndex = 0;
+                    quizQuestions.forEach(q => {
+                        q.answered = false;
+                        q.isCorrect = null;
+                        q.userAnswer = null;
+                        q.hintUsed = false;
+                    });
+                    saveQuizState();
+                    renderQuestion();
+                }
+            };
+            
+            els.saveNoteBtn.onclick = () => {
+                const val = els.noteText.value.trim();
+                if(!val) return showMsg('Chưa nhập nội dung', 'error');
+                const notes = JSON.parse(localStorage.getItem(STORAGE_KEY_NOTES)) || [];
+                notes.push(val);
+                localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes));
+                els.noteText.value = '';
+                loadNotes();
+            };
+
+            els.exportNoteBtn.onclick = () => {
+                const notes = JSON.parse(localStorage.getItem(STORAGE_KEY_NOTES)) || [];
+                if(!notes.length) return showMsg('Không có gì để xuất', 'error');
+                const blob = new Blob([notes.join('\n\n')], {type: 'application/msword'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'Ghi_Chu_Word_Form_Buoi_1.doc';
+                a.click();
+            };
+
+            els.exportResultBtn.onclick = () => {
+                 const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Ket Qua Word Form Buoi 1</title></head>
+                <body>
+                    <h1>Kết Quả Luyện Tập Word Form - Buổi 1</h1>
+                    <p>Điểm: ${score} / ${quizQuestions.length}</p>
+                    <ol>${quizQuestions.filter(q => q.answered).map(q => `
+                        <li>
+                            <p><strong>${q.question}</strong></p>
+                            <p>Bạn chọn: ${q.userAnswer} (${q.isCorrect ? 'Đúng' : 'Sai'}) | Đáp án đúng: ${q.answer}</p>
+                            <p><i>Giải thích: ${q.explanation}</i></p>
+                        </li>`).join('')}
+                    </ol>
+                </body></html>`;
+                const blob = new Blob([htmlContent], { type: 'application/msword' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'Ket_Qua_Word_Form_Buoi_1.doc';
+                a.click();
+            };
+        });
+    </script>
+</body>
+</html>
