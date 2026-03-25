@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community & Environment Mastery - Advanced</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #EEF2FF; color: #1e293b; }
+        .chart-container { position: relative; width: 100%; max-width: 300px; margin: 0 auto; height: 250px; }
+        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .interactive-btn { transition: all 0.2s ease; }
+        .interactive-btn:active { transform: scale(0.95); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .word-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #ffffff;
+            border: 2px solid #6366f1;
+            color: #4338ca;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .word-badge:hover { background-color: #e0e7ff; transform: translateY(-2px); }
+        .word-badge.selected-pool { opacity: 0; visibility: hidden; pointer-events: none; }
+        .dropzone {
+            min-height: 3.5rem;
+            border: 2px dashed #c7d2fe;
+            border-radius: 0.75rem;
+            background-color: #f5f3ff;
+            padding: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Flashcard 3D */
+        .fc-container { perspective: 1000px; width: 100%; max-width: 600px; margin: 0 auto; height: 320px; cursor: pointer; }
+        .fc-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 1rem; }
+        .fc-container.flipped .fc-inner { transform: rotateY(180deg); }
+        .fc-front, .fc-back {
+            position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            border-radius: 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;
+            border: 2px solid #818cf8; background-color: #ffffff;
+        }
+        .fc-back { background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); transform: rotateY(180deg); overflow-y: auto; }
+        
+        .timer-display { font-family: 'Courier New', monospace; font-weight: 800; background: #1e1b4b; color: #818cf8; padding: 0.5rem 1rem; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-indigo-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-users-cog text-indigo-600 text-2xl mr-2"></i>
+                    <span class="text-2xl font-black text-indigo-900 tracking-tight">Community<span class="text-indigo-500">Mastery</span></span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="timer-display hidden sm:block shadow-inner" id="timer">00:00</div>
+                    <span id="global-score" class="bg-indigo-50 text-indigo-700 px-4 py-1.5 rounded-full border border-indigo-200 font-bold text-sm">Điểm: 0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- Header -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="text-4xl font-black text-slate-800 sm:text-6xl mb-4 tracking-tight">
+                Community & Environment
+            </h1>
+            <p class="text-lg text-slate-500 max-w-2xl mx-auto font-medium">
+                Website luyện tập từ vựng mở rộng (60 câu hỏi) dựa trên nội dung bài học.
+            </p>
+        </div>
+
+        <!-- Section 1: Flashcards -->
+        <section class="mb-16 fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-extrabold text-slate-800 flex items-center">
+                    <i class="fas fa-layer-group text-indigo-500 mr-3"></i> 1. Flashcards Từ Vựng
+                </h2>
+                <div class="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                    45 Thẻ từ vựng & Quy tắc
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Flashcard Player -->
+                <div class="lg:col-span-2 bg-white p-8 rounded-3xl card-shadow border border-indigo-50">
+                    <div class="fc-container mb-8" id="vocab-flashcard" onclick="flipCard()">
+                        <div class="fc-inner">
+                            <div class="fc-front">
+                                <span class="text-indigo-400 text-4xl mb-4"><i class="fas fa-graduation-cap"></i></span>
+                                <h3 id="card-en" class="text-3xl md:text-4xl font-black text-indigo-900 mb-4 tracking-tight">Community (n)</h3>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">(Nhấn để lật thẻ)</p>
+                            </div>
+                            <div class="fc-back custom-scrollbar">
+                                <h3 class="text-sm font-black text-indigo-500 mb-4 uppercase tracking-widest border-b border-indigo-100 pb-2 w-full">Thông tin chi tiết</h3>
+                                <div class="text-left w-full space-y-5 px-2">
+                                    <div>
+                                        <span class="block text-xs font-bold text-indigo-400 mb-1 uppercase">Định nghĩa & Trọng âm:</span>
+                                        <span id="card-vi" class="text-xl font-bold text-slate-800 leading-tight">cộng đồng = neighbor (Trọng âm âm 2)</span>
+                                    </div>
+                                    <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                                        <span class="block text-xs font-bold text-indigo-400 mb-1 uppercase">Ví dụ minh họa:</span>
+                                        <span id="card-ex" class="text-slate-700 italic leading-relaxed text-lg font-medium">My community is friendly.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center max-w-md mx-auto">
+                        <button onclick="prevCard()" class="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-400 hover:bg-indigo-600 hover:text-white transition shadow-sm border border-slate-200">
+                            <i class="fas fa-chevron-left text-xl"></i>
+                        </button>
+                        <div class="text-center">
+                            <span id="fc-counter" class="text-2xl font-black text-indigo-600">1 / 45</span>
+                            <div class="flex gap-1 justify-center mt-1">
+                                <div class="w-8 h-1.5 rounded-full bg-indigo-600"></div>
+                                <div class="w-8 h-1.5 rounded-full bg-indigo-100"></div>
+                                <div class="w-8 h-1.5 rounded-full bg-indigo-100"></div>
+                            </div>
+                        </div>
+                        <button onclick="nextCard()" class="w-14 h-14 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-400 hover:bg-indigo-600 hover:text-white transition shadow-sm border border-slate-200">
+                            <i class="fas fa-chevron-right text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rules Sidebar -->
+                <div class="space-y-6">
+                    <div class="bg-indigo-900 rounded-3xl p-6 text-white card-shadow">
+                        <h3 class="font-black text-xl mb-4 flex items-center">
+                            <i class="fas fa-bullhorn text-yellow-400 mr-2"></i> Trọng âm cơ bản
+                        </h3>
+                        <ul class="space-y-4 text-sm opacity-90 leading-relaxed">
+                            <li class="flex items-start border-b border-indigo-800 pb-3">
+                                <span class="bg-indigo-700 text-indigo-200 w-6 h-6 rounded flex items-center justify-center text-xs font-bold mr-3 mt-0.5 shrink-0">1</span>
+                                <p><strong>N/Adj 2 âm tiết:</strong> Nhấn âm 1 (VD: <u>rea</u>son, <u>ser</u>vice).</p>
+                            </li>
+                            <li class="flex items-start border-b border-indigo-800 pb-3">
+                                <span class="bg-indigo-700 text-indigo-200 w-6 h-6 rounded flex items-center justify-center text-xs font-bold mr-3 mt-0.5 shrink-0">2</span>
+                                <p><strong>Verb 2 âm tiết:</strong> Nhấn âm 2 (VD: pro<u>vide</u>, re<u>turn</u>).</p>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-indigo-700 text-indigo-200 w-6 h-6 rounded flex items-center justify-center text-xs font-bold mr-3 mt-0.5 shrink-0">3</span>
+                                <p><strong>Đuôi "-y":</strong> Nhấn âm thứ 3 từ dưới lên (VD: com-<u>mu</u>-ni-ty).</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-3xl p-6 border border-indigo-100 card-shadow">
+                        <h3 class="font-bold text-slate-800 mb-2">Thành thị vs Nông thôn</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed italic mb-2">"Urban area: Convenient, better education & hospital."</p>
+                        <p class="text-xs text-slate-500 leading-relaxed italic">"Rural area: Fresh air/food, quite & peaceful."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Exercises -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            
+            <!-- Left: Exercises -->
+            <div class="lg:col-span-2 space-y-12">
+                
+                <!-- Part 1: MCQ (20 Questions) -->
+                <section class="bg-white rounded-3xl card-shadow border border-slate-100 overflow-hidden">
+                    <div class="bg-indigo-600 px-8 py-5 flex justify-between items-center">
+                        <h3 class="text-xl font-black text-white">Bài 1: Trọng âm & Từ vựng</h3>
+                        <span class="bg-indigo-800 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">20 Câu</span>
+                    </div>
+                    <div class="p-8">
+                        <div id="mcq-container" class="space-y-6"></div>
+                    </div>
+                </section>
+
+                <!-- Part 2: Translation (20 Questions) -->
+                <section class="bg-white rounded-3xl card-shadow border border-slate-100 overflow-hidden">
+                    <div class="bg-violet-600 px-8 py-5 flex justify-between items-center">
+                        <h3 class="text-xl font-black text-white">Bài 2: Dịch thuật Việt - Anh</h3>
+                        <span class="bg-violet-800 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">20 Câu</span>
+                    </div>
+                    <div class="p-8">
+                        <div id="translate-container" class="space-y-8"></div>
+                    </div>
+                </section>
+
+                <!-- Part 3: Reorder (20 Questions) -->
+                <section class="bg-white rounded-3xl card-shadow border border-slate-100 overflow-hidden">
+                    <div class="bg-indigo-800 px-8 py-5 flex justify-between items-center">
+                        <h3 class="text-xl font-black text-white">Bài 3: Sắp xếp câu hoàn chỉnh</h3>
+                        <span class="bg-indigo-900 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">20 Câu</span>
+                    </div>
+                    <div class="p-8">
+                        <div id="reorder-container" class="space-y-10"></div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right: Notes & Stats -->
+            <div class="space-y-8">
+                <div class="sticky top-24 space-y-8">
+                    
+                    <!-- Notes -->
+                    <div class="bg-white rounded-3xl p-6 border-l-8 border-yellow-400 card-shadow">
+                        <h3 class="text-xl font-black text-slate-800 mb-4 flex items-center">
+                            <i class="fas fa-edit text-yellow-500 mr-2"></i> Ghi Chú
+                        </h3>
+                        <div id="note-message" class="hidden mb-3 text-xs p-2 rounded-lg font-bold text-center"></div>
+                        <textarea id="note-input" class="w-full h-40 p-4 text-sm border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 outline-none resize-y mb-4 bg-slate-50 transition-all font-medium" placeholder="Ghi lại kiến thức..."></textarea>
+                        <div class="flex gap-3">
+                            <button onclick="saveNote()" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition shadow-md">
+                                <i class="fas fa-save mr-1"></i> Lưu
+                            </button>
+                            <button onclick="exportResult()" id="export-btn" class="flex-1 bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-900 transition shadow-md">
+                                <i class="fas fa-file-word mr-1"></i> Nộp Bài
+                            </button>
+                        </div>
+                        <div class="mt-6 max-h-60 overflow-y-auto space-y-3 custom-scrollbar pr-1" id="notes-list">
+                            <div class="text-center text-slate-400 text-xs italic py-4">Chưa có ghi chú.</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress -->
+                    <div class="bg-indigo-50 rounded-3xl p-6 border border-indigo-100 card-shadow text-center">
+                        <h3 class="text-lg font-black text-indigo-900 mb-4">Tiến Độ Tổng Quát</h3>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                        <div class="mt-4 flex justify-around text-sm font-bold">
+                            <div class="text-emerald-600">Đúng: <span id="stats-correct">0</span></div>
+                            <div class="text-slate-400">Còn lại: <span id="stats-remaining">60</span></div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-indigo-200">
+                            <div class="text-xs text-indigo-400 uppercase font-black tracking-widest mb-1">Điểm số dự kiến</div>
+                            <div id="grade-10" class="text-4xl font-black text-indigo-900">0.0</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. DATA (Tổng hợp tất cả từ vựng và câu VD của người dùng) ---
+        const vocabList = [
+            { word: "Community (n)", mean: "cộng đồng = neighbor (Trọng âm 2)", ex: "My community is friendly." },
+            { word: "Service (n)", mean: "dịch vụ (Trọng âm 1)", ex: "The service of restaurant is very good." },
+            { word: "Activity (n)", mean: "hoạt động (Trọng âm 2)", ex: "I join in many community activities." },
+            { word: "Reason (n)", mean: "lí do (Trọng âm 1)", ex: "I have reason to do homeworks." },
+            { word: "Different (adj)", mean: "khác biệt = unique/special", ex: "She is different." },
+            { word: "Difference (n)", mean: "sự khác biệt", ex: "There are many differences between me and my brother." },
+            { word: "Benefit (n)", mean: "lợi ích (Trọng âm 1)", ex: "It has many benefits to do sports." },
+            { word: "Compliment (n/v)", mean: "lời khen ngợi", ex: "She gives me many compliments." },
+            { word: "Come back = Return (v)", mean: "trở về (Trọng âm 2)", ex: "After a year, we come back home." },
+            { word: "Meet up with (v)", mean: "gặp gỡ ai đó", ex: "i meet up with friends at the coffee shop." },
+            { word: "Wait for (v)", mean: "đợi ai/cái gì", ex: "I have waited for the train an hour." },
+            { word: "Pick up (v)", mean: "nhặt lên", ex: "You should pick up litters at the park." },
+            { word: "Litter = Rubbish = Trash (n)", mean: "rác thải", ex: "It has many litters around my house." },
+            { word: "Plant (v)", mean: "trồng", ex: "I plant vegetables in the garden." },
+            { word: "Donate (v)", mean: "quyên góp (Trọng âm 2)", ex: "We donate old clothes." },
+            { word: "Reuse / Reduce / Recycle (v)", mean: "tái sử dụng / giảm thiểu / tái chế", ex: "You should reuse plastic bottle to protect environment." },
+            { word: "Rural area = Countryside", mean: "nông thôn", ex: "Air and foods are fresh in rural area." },
+            { word: "Urban area = City", mean: "thành thị", ex: "Urban area is more convenient." },
+            { word: "Convenient (adj)", mean: "tiện nghi (Trọng âm 2)", ex: "City is more convenient." },
+            { word: "Poverty (n)", mean: "sự nghèo đói (Trọng âm 1)", ex: "The children live in poverty." },
+            { word: "Provide (v)", mean: "cung cấp (Trọng âm 2)", ex: "He provides help." },
+            { word: "Patient (adj/n)", mean: "kiên nhẫn / bệnh nhân", ex: "Hospital has many patient." },
+            { word: "Volunteer (n/v)", mean: "tình nguyện (Trọng âm 3)", ex: "He volunteer to pick up litters in the ocean." },
+            { word: "Take care of = Look after", mean: "chăm sóc", ex: "I take care of my mother." },
+            { word: "Between A and B", mean: "giữa A và B", ex: "My house is between school and hospital." },
+            { word: "From A to B", mean: "từ A tới B", ex: "It is five kilometres from my house to school." },
+            { word: "Serious (adj)", mean: "nghiêm trọng (Trọng âm 1)", ex: "My health problems are very serious." },
+            { word: "Disease (n)", mean: "bệnh (Trọng âm 2)", ex: "Heart disease is dangerous." },
+            { word: "Special = Unique (adj)", mean: "đặc biệt, độc đáo", ex: "His gifts are very special." },
+            { word: "Make lemonade (v)", mean: "làm nước chanh", ex: "I make lemonade." },
+            { word: "Cause sth (v)", mean: "gây ra", ex: "Fast food causes health problems." },
+            { word: "Favourite subject", mean: "môn học yêu thích", ex: "English is my favourite subject." },
+            { word: "Clean up (v)", mean: "dọn dẹp", ex: "I clean up my house." },
+            { word: "Keep fit (v)", mean: "giữ dáng", ex: "I do exercise to keep fit." },
+            { word: "Fresh (adj)", mean: "sạch, tươi", ex: "Air is fresh in the countryside." },
+            { word: "Quiet (adj)", mean: "yên tĩnh", ex: "Countryside is quiter than city." },
+            { word: "Peaceful (adj)", mean: "yên bình", ex: "Countryside is more peaceful than city." },
+            { word: "Affect (v)", mean: "ảnh hưởng (Trọng âm 2)", ex: "Bad habits affect your health." },
+            { word: "Without", mean: "không có", ex: "I study without reading books." },
+            { word: "Acne / Pimple / Spot", mean: "mụn trứng cá", ex: "My face has acne." }
+        ];
+
+        // Part 1: MCQ (20 Items) - Stress + Vocab
+        const mcqData = [
+            { id: "m1", q: "Trọng âm 'community' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Kết thúc -y, 4 âm tiết, nhấn âm 3 từ dưới lên -> âm 2." },
+            { id: "m2", q: "Trọng âm 'service' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. Không nhấn"], answer: 0, explanation: "Noun 2 âm tiết nhấn âm 1." },
+            { id: "m3", q: "Trọng âm 'provide' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Verb 2 âm tiết nhấn âm 2." },
+            { id: "m4", q: "Trọng âm 'reason' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 0, explanation: "Noun 2 âm tiết nhấn âm 1." },
+            { id: "m5", q: "Trọng âm 'benefit' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 0, explanation: "Noun 3 âm tiết nhấn âm 1." },
+            { id: "m6", q: "Trọng âm 'poverty' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 0, explanation: "Kết thúc -y, nhấn âm 3 từ dưới lên -> âm 1." },
+            { id: "m7", q: "Trọng âm 'return' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Verb 2 âm tiết nhấn âm 2." },
+            { id: "m8", q: "Trọng âm 'activity' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Nhấn âm 3 từ dưới lên -> âm 2." },
+            { id: "m9", q: "Trọng âm 'convenient' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Nhấn âm 2." },
+            { id: "m10", q: "Trọng âm 'volunteer' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 2, explanation: "Đuôi -eer thường nhận trọng âm -> âm 3." },
+            { id: "m11", q: "Từ nào đồng nghĩa với 'community'?", options: ["A. neighbour", "B. urban", "C. rural"], answer: 0, explanation: "Community = neighbour (nghĩa rộng là cộng đồng dân cư)." },
+            { id: "m12", q: "Từ nào đồng nghĩa với 'different'?", options: ["A. same", "B. unique", "C. common"], answer: 1, explanation: "Different (khác biệt) gần nghĩa với unique (độc nhất/đặc biệt)." },
+            { id: "m13", q: "Điền từ: 'You should _________ old clothes.'", options: ["A. reuse", "B. reduce", "C. cause"], answer: 0, explanation: "Reuse old clothes (tái sử dụng quần áo cũ)." },
+            { id: "m14", q: "Điền từ: 'The children live in _________.'", options: ["A. reason", "B. poverty", "C. plastic"], answer: 1, explanation: "Live in poverty (sống trong sự nghèo đói)." },
+            { id: "m15", q: "Điền từ: 'Fast food _________ health problems.'", options: ["A. causes", "B. plants", "C. donates"], answer: 0, explanation: "Fast food gây ra (causes) vấn đề sức khỏe." },
+            { id: "m16", q: "Điền giới từ: 'My house is _________ school and hospital.'", options: ["A. from", "B. between", "C. to"], answer: 1, explanation: "Between A and B: Ở giữa A và B." },
+            { id: "m17", q: "Điền giới từ: 'I meet up _________ friends.'", options: ["A. with", "B. for", "C. about"], answer: 0, explanation: "Meet up with someone." },
+            { id: "m18", q: "Chọn từ: 'Air is _________ in the countryside.'", options: ["A. serious", "B. fresh", "C. popular"], answer: 1, explanation: "Fresh air: không khí trong lành." },
+            { id: "m19", q: "Chọn từ: 'The movies _________ interesting.'", options: ["A. sounds", "B. makes", "C. plants"], answer: 0, explanation: "It sounds interesting: Nghe có vẻ thú vị." },
+            { id: "m20", q: "Trọng âm 'disease' rơi vào âm tiết thứ mấy?", options: ["A. 1", "B. 2", "C. 3"], answer: 1, explanation: "Disease nhấn âm 2." }
+        ];
+
+        // Part 2: Translation (20 Items) - Dịch Việt sang Anh
+        const translateData = [
+            { id: "t1", vi: "Cộng đồng của tôi rất thân thiện.", accepted: ["my community is friendly"] },
+            { id: "t2", vi: "Dịch vụ của nhà hàng rất tốt.", accepted: ["the service of the restaurant is very good", "the service of restaurant is very good"] },
+            { id: "t3", vi: "Tôi có lý do để làm bài tập về nhà.", accepted: ["i have reason to do homeworks", "i have reason to do homework"] },
+            { id: "t4", vi: "Cô ấy có những lý do khác biệt.", accepted: ["she has different reasons"] },
+            { id: "t5", vi: "Có nhiều lợi ích khi chơi thể thao.", accepted: ["it has many benefits to do sports"] },
+            { id: "t6", vi: "Sau một năm, chúng tôi trở về nhà.", accepted: ["after a year we come back home", "after a year we return home"] },
+            { id: "t7", vi: "Tôi không đi học vào ngày khác.", accepted: ["i do not go to school on the other day", "i don't go to school on the other day"] },
+            { id: "t8", vi: "Tôi gặp gỡ bạn bè tại quán cà phê.", accepted: ["i meet up with friends at the coffee shop"] },
+            { id: "t9", vi: "Tôi đã đợi tàu hỏa một tiếng rồi.", accepted: ["i have waited for the train an hour", "i have waited for the train for an hour"] },
+            { id: "t10", vi: "Bạn nên nhặt rác ở công viên.", accepted: ["you should pick up litters at the park", "you should pick up litter at the park"] },
+            { id: "t11", vi: "Bạn nên tái sử dụng chai nhựa.", accepted: ["you should reuse plastic bottle", "you should reuse plastic bottles"] },
+            { id: "t12", vi: "Thành thị thì tiện nghi hơn.", accepted: ["urban area is more convenient"] },
+            { id: "t13", vi: "Trẻ em ở nông thôn sống trong cảnh nghèo đói.", accepted: ["the children in rural area live in poverty", "the children in countryside live in poverty"] },
+            { id: "t14", vi: "Bệnh viện có nhiều bệnh nhân.", accepted: ["hospital has many patient", "the hospital has many patients"] },
+            { id: "t15", vi: "Tôi chăm sóc mẹ tôi.", accepted: ["i take care of my mother", "i look after my mother"] },
+            { id: "t16", vi: "Tôi dọn dẹp nhà của tôi.", accepted: ["i clean up my house"] },
+            { id: "t17", vi: "Nó cách nhà tôi đến trường 5 km.", accepted: ["it is five kilometres from my house to school"] },
+            { id: "t18", vi: "Vấn đề sức khỏe của tôi rất nghiêm trọng.", accepted: ["my health problems are very serious"] },
+            { id: "t19", vi: "Những món quà của anh ấy rất đặc biệt.", accepted: ["his gifts are very special"] },
+            { id: "t20", vi: "Tôi học mà không đọc sách.", accepted: ["i study without reading books"] }
+        ];
+
+        // Part 3: Reorder (20 Items) - Sắp xếp câu
+        const reorderData = [
+            { id: "r1", sentence: "I join in many community activities." },
+            { id: "r2", sentence: "There are many differences between us." },
+            { id: "r3", sentence: "She gives me many compliments." },
+            { id: "r4", sentence: "I plant vegetables in the garden." },
+            { id: "r5", sentence: "We donate old clothes to children." },
+            { id: "r6", sentence: "Air and foods are fresh in rural area." },
+            { id: "r7", sentence: "Urban area has better education and hospital." },
+            { id: "r8", sentence: "He volunteer to pick up litters in the ocean." },
+            { id: "r9", sentence: "Fast food causes health problems." },
+            { id: "r10", sentence: "My house is between school and hospital." },
+            { id: "r11", sentence: "English is my favourite subject." },
+            { id: "r12", sentence: "I do exercise to keep fit." },
+            { id: "r13", sentence: "Heart disease is very dangerous." },
+            { id: "r14", sentence: "I make lemonade in the kitchen." },
+            { id: "r15", sentence: "My face has acne today." },
+            { id: "r16", sentence: "The other day I saw a cat." },
+            { id: "r17", sentence: "I have waited for the bus for an hour." },
+            { id: "r18", sentence: "Countryside is more peaceful than city." },
+            { id: "r19", sentence: "He provides help to poor people." },
+            { id: "r20", sentence: "You should bring lunch box to school." }
+        ];
+
+        // --- 2. LOGIC ---
+        let currentFlashcardIndex = 0;
+        let scoreState = { total: 60, correct: new Set(), incorrect: new Set() };
+        let timerSeconds = 0;
+        let timerInterval;
+        let reorderState = {};
+
+        function initTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+                const s = (timerSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                document.getElementById('timer').classList.remove('hidden');
+            }, 1000);
+        }
+
+        // Initialize Reorder State with shuffled words
+        reorderData.forEach(item => {
+            const words = item.sentence.split(" ").map((w, idx) => ({ id: `${item.id}-w${idx}`, text: w }));
+            reorderState[item.id] = {
+                correct: item.sentence,
+                pool: [...words].sort(() => Math.random() - 0.5),
+                selected: []
+            };
+        });
+
+        // --- 3. RENDER FUNCTIONS ---
+        function renderFlashcard() {
+            const data = vocabList[currentFlashcardIndex];
+            document.getElementById('vocab-flashcard').classList.remove('flipped');
+            setTimeout(() => {
+                document.getElementById('card-en').innerText = data.word;
+                document.getElementById('card-vi').innerText = data.mean;
+                document.getElementById('card-ex').innerText = data.ex;
+                document.getElementById('fc-counter').innerText = `${currentFlashcardIndex + 1} / ${vocabList.length}`;
+            }, 150);
+        }
+
+        function flipCard() { document.getElementById('vocab-flashcard').classList.toggle('flipped'); }
+        function nextCard() { if (currentFlashcardIndex < vocabList.length - 1) { currentFlashcardIndex++; renderFlashcard(); } }
+        function prevCard() { if (currentFlashcardIndex > 0) { currentFlashcardIndex--; renderFlashcard(); } }
+
+        function renderMCQ() {
+            const container = document.getElementById('mcq-container');
+            mcqData.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = "bg-slate-50 p-6 rounded-2xl border border-slate-100";
+                div.innerHTML = `
+                    <p class="font-bold text-slate-800 mb-4"><span class="text-indigo-600 mr-2">${idx + 1}.</span> ${item.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${item.options.map((opt, oIdx) => `
+                            <button onclick="checkMCQ('${item.id}', ${oIdx}, this)" class="mcq-btn-${item.id} text-left px-4 py-3 rounded-xl border-2 border-white bg-white hover:border-indigo-200 transition font-medium shadow-sm">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="fb-mcq-${item.id}" class="hidden mt-3 p-3 rounded-xl text-sm font-bold"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderTranslate() {
+            const container = document.getElementById('translate-container');
+            translateData.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = "bg-violet-50/50 p-6 rounded-2xl border border-violet-100";
+                div.innerHTML = `
+                    <p class="font-bold text-slate-800 mb-3"><span class="text-violet-600 mr-2">${idx+1}.</span> ${item.vi}</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="trans-in-${item.id}" class="flex-grow p-4 rounded-xl border-2 border-slate-200 focus:border-violet-500 outline-none font-medium shadow-inner" placeholder="Dịch sang tiếng Anh..." onkeypress="if(event.key==='Enter') checkTranslate('${item.id}')">
+                        <button onclick="checkTranslate('${item.id}')" class="bg-violet-600 text-white px-6 rounded-xl font-bold hover:bg-violet-700 shadow-md">Check</button>
+                    </div>
+                    <div id="fb-trans-${item.id}" class="hidden mt-3 p-3 rounded-xl text-sm"></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderReorder() {
+            const container = document.getElementById('reorder-container');
+            container.innerHTML = '';
+            reorderData.forEach((item, idx) => {
+                const state = reorderState[item.id];
+                const div = document.createElement('div');
+                div.className = "space-y-4";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <p class="font-black text-slate-400 text-xs uppercase tracking-widest">Câu ${idx+1}</p>
+                        <button onclick="checkReorder('${item.id}')" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 hover:bg-indigo-600 hover:text-white transition">Kiểm tra câu ${idx+1}</button>
+                    </div>
+                    <div class="dropzone" id="dz-${item.id}">${state.selected.length ? '' : '<span class="text-slate-300 text-xs italic">Chọn từ bên dưới...</span>'}</div>
+                    <div class="flex flex-wrap gap-2" id="pool-${item.id}"></div>
+                    <div id="fb-reorder-${item.id}" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+                `;
+                container.appendChild(div);
+                
+                const pool = div.querySelector(`#pool-${item.id}`);
+                const dz = div.querySelector(`#dz-${item.id}`);
+                
+                state.pool.forEach(word => {
+                    const btn = document.createElement('button');
+                    btn.className = "word-badge";
+                    if(state.selected.some(s => s.id === word.id)) btn.classList.add('selected-pool');
+                    btn.innerText = word.text;
+                    btn.onclick = () => {
+                        state.selected.push(word);
+                        renderReorder();
+                    };
+                    pool.appendChild(btn);
+                });
+
+                state.selected.forEach((word, sIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm";
+                    btn.innerText = word.text;
+                    btn.onclick = () => {
+                        state.selected.splice(sIdx, 1);
+                        renderReorder();
+                    };
+                    dz.appendChild(btn);
+                });
+            });
+        }
+
+        // --- 4. CHECKING LOGIC ---
+        function checkMCQ(id, sel, btn) {
+            const data = mcqData.find(d => d.id === id);
+            const btns = document.querySelectorAll(`.mcq-btn-${id}`);
+            btns.forEach(b => b.disabled = true);
+            const fb = document.getElementById(`fb-mcq-${id}`);
+            fb.classList.remove('hidden');
+
+            if (sel === data.answer) {
+                btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                fb.innerHTML = `✅ Đúng! ${data.explanation}`;
+                fb.className = "mt-3 p-3 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+                updateScore(id, true);
+            } else {
+                btn.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+                btns[data.answer].classList.add('border-emerald-500', 'bg-emerald-50');
+                fb.innerHTML = `❌ Sai. ${data.explanation}`;
+                fb.className = "mt-3 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200";
+                updateScore(id, false);
+            }
+        }
+
+        function checkTranslate(id) {
+            const data = translateData.find(d => d.id === id);
+            const val = document.getElementById(`trans-in-${id}`).value.toLowerCase().replace(/[.,?!]/g, '').trim();
+            const fb = document.getElementById(`fb-trans-${id}`);
+            fb.classList.remove('hidden');
+
+            if (data.accepted.includes(val)) {
+                fb.innerHTML = "✅ Chính xác!";
+                fb.className = "mt-3 p-3 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+                updateScore(id, true);
+            } else {
+                fb.innerHTML = `❌ Gợi ý: ${data.accepted[0]}`;
+                fb.className = "mt-3 p-3 rounded-xl text-sm font-bold bg-red-50 text-red-700 border border-red-200";
+                updateScore(id, false);
+            }
+        }
+
+        function checkReorder(id) {
+            const state = reorderState[id];
+            const fb = document.getElementById(`fb-reorder-${id}`);
+            fb.classList.remove('hidden');
+            const res = state.selected.map(s => s.text).join(" ");
+            
+            if (res === state.correct) {
+                fb.innerHTML = "✅ Chính xác!";
+                fb.className = "mt-3 p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700";
+                updateScore(id, true);
+            } else {
+                fb.innerHTML = "❌ Chưa đúng, click vào các từ để xếp lại.";
+                fb.className = "mt-3 p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700";
+                updateScore(id, false);
+            }
+        }
+
+        // --- 5. UTILS ---
+        function updateScore(qId, isCorrect) {
+            if(isCorrect) { scoreState.incorrect.delete(qId); scoreState.correct.add(qId); }
+            else { scoreState.correct.delete(qId); scoreState.incorrect.add(qId); }
+            const c = scoreState.correct.size;
+            document.getElementById('stats-correct').innerText = c;
+            document.getElementById('stats-remaining').innerText = scoreState.total - c;
+            document.getElementById('global-score').innerText = `Điểm: ${c}/${scoreState.total}`;
+            const g10 = ((c / scoreState.total) * 10).toFixed(1);
+            document.getElementById('grade-10').innerText = g10;
+            progressChart.data.datasets[0].data = [c, scoreState.total - c];
+            progressChart.update();
+        }
+
+        let progressChart;
+        function initChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Đúng', 'Còn lại'],
+                    datasets: [{ data: [0, 60], backgroundColor: ['#10b981', '#e0e7ff'], borderWidth: 0 }]
+                },
+                options: { cutout: '80%', plugins: { legend: { display: false } } }
+            });
+        }
+
+        function saveNote() {
+            const input = document.getElementById('note-input');
+            const val = input.value.trim();
+            if (!val) return;
+            const notes = JSON.parse(localStorage.getItem('community_notes_v2')) || [];
+            notes.push(val);
+            localStorage.setItem('community_notes_v2', JSON.stringify(notes));
+            input.value = '';
+            loadNotes();
+        }
+
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('community_notes_v2')) || [];
+            const list = document.getElementById('notes-list');
+            list.innerHTML = notes.length ? '' : '<div class="text-center text-slate-400 text-xs italic py-4">Chưa có ghi chú.</div>';
+            notes.forEach((n, idx) => {
+                const d = document.createElement('div');
+                d.className = "bg-white p-3 rounded-xl border border-slate-100 text-sm flex justify-between shadow-sm";
+                d.innerHTML = `<span class="flex-1">${n}</span><button onclick="delNote(${idx})" class="text-red-300 ml-2 hover:text-red-500"><i class="fas fa-times"></i></button>`;
+                list.appendChild(d);
+            });
+        }
+
+        window.delNote = (i) => {
+            const notes = JSON.parse(localStorage.getItem('community_notes_v2')) || [];
+            notes.splice(i, 1);
+            localStorage.setItem('community_notes_v2', JSON.stringify(notes));
+            loadNotes();
+        };
+
+        function exportResult() {
+            const score = document.getElementById('grade-10').innerText;
+            const time = document.getElementById('timer').innerText;
+            const notes = JSON.parse(localStorage.getItem('community_notes_v2')) || [];
+            
+            const html = `
+                <html><head><meta charset='utf-8'><title>Result</title></head>
+                <body style='font-family: sans-serif;'>
+                    <h1>KẾT QUẢ HỌC TẬP: COMMUNITY & ENVIRONMENT</h1>
+                    <p>Thời gian làm bài: ${time}</p>
+                    <p>Điểm số (thang 10): <b>${score} / 10.0</b></p>
+                    <p>Số câu đúng: ${scoreState.correct.size} / 60</p>
+                    <hr>
+                    <h3>Ghi chú cá nhân:</h3>
+                    <ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul>
+                </body></html>
+            `;
+            const blob = new Blob([html], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Ket_Qua_Community_Environment_${score}.doc`;
+            link.click();
+        }
+
+        window.onload = () => {
+            renderFlashcard();
+            renderMCQ();
+            renderTranslate();
+            renderReorder();
+            initChart();
+            loadNotes();
+            initTimer();
+        };
+    </script>
+</body>
+</html>
